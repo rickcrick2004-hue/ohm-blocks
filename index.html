@@ -238,47 +238,107 @@
                     <!-- 添付画像を忠実に再現した動的回路図SVG (5列分) -->
                     <div class="col-span-5 bg-slate-50 rounded-xl border-2 border-slate-200 p-1.5 flex flex-col items-center justify-center relative">
                         <svg viewBox="0 0 320 205" class="w-full h-auto max-h-[155px]">
-                            <!-- 電源Vの測定ライン -->
-                            <polyline points="118,52 118,22 135,22" fill="none" stroke="#0f172a" stroke-width="2.5"/>
-                            <polyline points="182,52 182,22 165,22" fill="none" stroke="#0f172a" stroke-width="2.5"/>
-                            <!-- V ラベル -->
-                            <text id="svg-v-label" x="150" y="29" text-anchor="middle" fill="#1d4ed8" font-size="22" font-weight="800">V=?</text>
+                            <!-- ▼ 直列回路グループ ▼ -->
+                            <g id="svg-series-circuit">
+                                <!-- 電源Vの測定ライン -->
+                                <polyline points="118,52 118,22 135,22" fill="none" stroke="#0f172a" stroke-width="2.5"/>
+                                <polyline points="182,52 182,22 165,22" fill="none" stroke="#0f172a" stroke-width="2.5"/>
+                                <!-- V ラベル -->
+                                <text id="svg-v-label" x="150" y="29" text-anchor="middle" fill="#1d4ed8" font-size="22" font-weight="800">V=?</text>
 
-                            <!-- メイン回路の導線（上部左・上部右・左・右・下部） -->
-                            <line x1="30" y1="52" x2="144" y2="52" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
-                            <line x1="156" y1="52" x2="270" y2="52" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
-                            <line x1="30" y1="52" x2="30" y2="165" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
-                            <line x1="270" y1="52" x2="270" y2="165" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
-                            
-                            <!-- 下部導線（R1とR2の間を含む） -->
-                            <line x1="30" y1="165" x2="80" y2="165" stroke="#0f172a" stroke-width="3"/>
-                            <line x1="136" y1="165" x2="164" y2="165" stroke="#0f172a" stroke-width="3"/>
-                            <line x1="220" y1="165" x2="270" y2="165" stroke="#0f172a" stroke-width="3"/>
+                                <!-- メイン回路の導線（上部左・上部右・左・右・下部） -->
+                                <line x1="30" y1="52" x2="144" y2="52" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="156" y1="52" x2="270" y2="52" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="30" y1="52" x2="30" y2="165" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+                                <line x1="270" y1="52" x2="270" y2="165" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+                                
+                                <!-- 下部導線（R1とR2の間を含む） -->
+                                <line x1="30" y1="165" x2="80" y2="165" stroke="#0f172a" stroke-width="3"/>
+                                <line x1="136" y1="165" x2="164" y2="165" stroke="#0f172a" stroke-width="3"/>
+                                <line x1="220" y1="165" x2="270" y2="165" stroke="#0f172a" stroke-width="3"/>
 
-                            <!-- 電源（電池記号：左が太く短いマイナス極、右が細く長いプラス極） -->
-                            <line x1="144" y1="41" x2="144" y2="63" stroke="#0f172a" stroke-width="4"/>
-                            <line x1="156" y1="32" x2="156" y2="72" stroke="#0f172a" stroke-width="2.5"/>
+                                <!-- 電源（電池記号：左が太く短いマイナス極、右が細く長いプラス極） -->
+                                <line x1="144" y1="41" x2="144" y2="63" stroke="#0f172a" stroke-width="4"/>
+                                <line x1="156" y1="32" x2="156" y2="72" stroke="#0f172a" stroke-width="2.5"/>
 
-                            <!-- 電流 I の表示（右側赤字＋下向き矢印） -->
-                            <text id="svg-i-val" x="276" y="102" fill="#dc2626" font-size="21" font-weight="800">2A</text>
-                            <line x1="288" y1="110" x2="288" y2="136" stroke="#0f172a" stroke-width="2.5"/>
-                            <polygon points="288,142 283,132 293,132" fill="#0f172a"/>
+                                <!-- 電流 I の表示（右側赤字＋下向き矢印） -->
+                                <text id="svg-i-val" x="276" y="102" fill="#dc2626" font-size="21" font-weight="800">2A</text>
+                                <line x1="288" y1="110" x2="288" y2="136" stroke="#0f172a" stroke-width="2.5"/>
+                                <polygon points="288,142 283,132 293,132" fill="#0f172a"/>
 
-                            <!-- 抵抗 R1 -->
-                            <text id="svg-r1-val" x="108" y="144" text-anchor="middle" fill="#15803d" font-size="19" font-weight="800">10Ω</text>
-                            <rect x="80" y="151" width="56" height="28" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>
-                            <text x="108" y="172" text-anchor="middle" fill="#15803d" font-size="18" font-weight="800">R₁</text>
+                                <!-- 抵抗 R1 -->
+                                <text id="svg-r1-val" x="108" y="144" text-anchor="middle" fill="#15803d" font-size="19" font-weight="800">10Ω</text>
+                                <rect x="80" y="151" width="56" height="28" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>
+                                <text x="108" y="172" text-anchor="middle" fill="#15803d" font-size="18" font-weight="800">R₁</text>
 
-                            <!-- 抵抗 R2 -->
-                            <text id="svg-r2-val" x="192" y="144" text-anchor="middle" fill="#15803d" font-size="19" font-weight="800">20Ω</text>
-                            <rect x="164" y="151" width="56" height="28" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>
-                            <text x="192" y="172" text-anchor="middle" fill="#15803d" font-size="18" font-weight="800">R₂</text>
+                                <!-- 抵抗 R2 -->
+                                <text id="svg-r2-val" x="192" y="144" text-anchor="middle" fill="#15803d" font-size="19" font-weight="800">20Ω</text>
+                                <rect x="164" y="151" width="56" height="28" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>
+                                <text x="192" y="172" text-anchor="middle" fill="#15803d" font-size="18" font-weight="800">R₂</text>
 
-                            <!-- 合成抵抗が完成したときに表示されるハイライト枠 -->
-                            <g id="svg-combined-group" class="hidden">
-                                <rect x="72" y="124" width="156" height="74" rx="10" fill="none" stroke="#059669" stroke-width="2.5" stroke-dasharray="6,4"/>
-                                <rect x="95" y="182" width="110" height="21" rx="6" fill="#059669"/>
-                                <text id="svg-combined-text" x="150" y="197" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="800">合成抵抗 30Ω</text>
+                                <!-- 合成抵抗が完成したときに表示されるハイライト枠 -->
+                                <g id="svg-combined-group" class="hidden">
+                                    <rect x="72" y="124" width="156" height="74" rx="10" fill="none" stroke="#059669" stroke-width="2.5" stroke-dasharray="6,4"/>
+                                    <rect x="95" y="182" width="110" height="21" rx="6" fill="#059669"/>
+                                    <text id="svg-combined-text" x="150" y="197" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="800">合成抵抗 30Ω</text>
+                                </g>
+                            </g>
+
+                            <!-- ▼ 並列回路グループ（添付画像を忠実に再現） ▼ -->
+                            <g id="svg-parallel-circuit" class="hidden">
+                                <!-- 電源Vの測定ライン -->
+                                <polyline points="118,44 118,18 135,18" fill="none" stroke="#0f172a" stroke-width="2.2"/>
+                                <polyline points="172,44 172,18 155,18" fill="none" stroke="#0f172a" stroke-width="2.2"/>
+                                <text id="svg-p-v-label" x="145" y="25" text-anchor="middle" fill="#1d4ed8" font-size="20" font-weight="800">V</text>
+
+                                <!-- メイン外枠導線 -->
+                                <line x1="25" y1="44" x2="139" y2="44" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+                                <line x1="151" y1="44" x2="260" y2="44" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+                                <line x1="25" y1="44" x2="25" y2="145" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+                                <line x1="260" y1="44" x2="260" y2="145" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+                                <line x1="25" y1="145" x2="72" y2="145" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+                                <line x1="218" y1="145" x2="260" y2="145" stroke="#0f172a" stroke-width="2.5" stroke-linecap="round"/>
+
+                                <!-- 電源（電池記号） -->
+                                <line x1="139" y1="34" x2="139" y2="54" stroke="#0f172a" stroke-width="4"/>
+                                <line x1="151" y1="26" x2="151" y2="62" stroke="#0f172a" stroke-width="2.5"/>
+
+                                <!-- 全体の電流（右側赤字＋下向き矢印） -->
+                                <text id="svg-p-i-total" x="266" y="92" fill="#dc2626" font-size="19" font-weight="800">0.5A</text>
+                                <line x1="274" y1="98" x2="274" y2="120" stroke="#0f172a" stroke-width="2"/>
+                                <polygon points="274,125 270,117 278,117" fill="#0f172a"/>
+
+                                <!-- 並列分岐点（黒丸）と枝の縦線 -->
+                                <circle cx="72" cy="145" r="3.5" fill="#0f172a"/>
+                                <circle cx="218" cy="145" r="3.5" fill="#0f172a"/>
+                                <line x1="72" y1="115" x2="72" y2="175" stroke="#0f172a" stroke-width="2.5"/>
+                                <line x1="218" y1="115" x2="218" y2="175" stroke="#0f172a" stroke-width="2.5"/>
+
+                                <!-- 上の枝（R1） -->
+                                <line x1="72" y1="115" x2="115" y2="115" stroke="#0f172a" stroke-width="2.5"/>
+                                <line x1="175" y1="115" x2="218" y2="115" stroke="#0f172a" stroke-width="2.5"/>
+                                <rect x="115" y="102" width="60" height="26" fill="#ffffff" stroke="#0f172a" stroke-width="2.2"/>
+                                <text x="145" y="121" text-anchor="middle" fill="#15803d" font-size="17" font-weight="800">R₁</text>
+                                <!-- R1の電流（0.1A ＋ 左向き矢印） -->
+                                <text id="svg-p-i1-val" x="196" y="94" text-anchor="middle" fill="#dc2626" font-size="18" font-weight="800">0.1A</text>
+                                <line x1="208" y1="103" x2="186" y2="103" stroke="#0f172a" stroke-width="2"/>
+                                <polygon points="181,103 188,99 188,107" fill="#0f172a"/>
+
+                                <!-- 下の枝（R2） -->
+                                <line x1="72" y1="175" x2="115" y2="175" stroke="#0f172a" stroke-width="2.5"/>
+                                <line x1="175" y1="175" x2="218" y2="175" stroke="#0f172a" stroke-width="2.5"/>
+                                <!-- V2 の測定ライン -->
+                                <polyline points="106,175 106,148 130,148" fill="none" stroke="#0f172a" stroke-width="2"/>
+                                <polyline points="184,175 184,148 160,148" fill="none" stroke="#0f172a" stroke-width="2"/>
+                                <text id="svg-p-v2-label" x="145" y="154" text-anchor="middle" fill="#1d4ed8" font-size="17" font-weight="800">V₂</text>
+                                <!-- R2 本体と 20Ω -->
+                                <rect x="115" y="162" width="60" height="26" fill="#ffffff" stroke="#0f172a" stroke-width="2.2"/>
+                                <text x="145" y="181" text-anchor="middle" fill="#15803d" font-size="17" font-weight="800">R₂</text>
+                                <text id="svg-p-r2-val" x="145" y="203" text-anchor="middle" fill="#15803d" font-size="17" font-weight="800">20Ω</text>
+                                <!-- R2の電流（I2 ＋ 左向き矢印） -->
+                                <text id="svg-p-i2-val" x="198" y="157" text-anchor="middle" fill="#dc2626" font-size="17" font-weight="800">I₂</text>
+                                <line x1="208" y1="165" x2="188" y2="165" stroke="#0f172a" stroke-width="2"/>
+                                <polygon points="183,165 190,161 190,169" fill="#0f172a"/>
                             </g>
                         </svg>
                     </div>
@@ -349,7 +409,7 @@
                     <div class="flex items-center justify-between mb-1">
                         <span class="text-xs font-extrabold text-emerald-900 flex items-center">
                             <span class="bg-emerald-600 text-white rounded-md px-1.5 py-0.5 text-[10px] mr-1.5">組み合わせ</span>
-                            直列回路の「全体の抵抗（合成抵抗）」を作ろう！（ R ＝ R₁ ＋ R₂ ）
+                            <span id="combine-workbench-title">直列回路の「全体の抵抗（合成抵抗）」を作ろう！（ R ＝ R₁ ＋ R₂ ）</span>
                         </span>
                         <span id="combine-status" class="text-[11px] font-bold text-emerald-700">
                             R₁ と R₂ の数字を入れよう
@@ -362,7 +422,7 @@
                              class="w-20 h-13 rounded-xl border-3 border-dashed border-emerald-400 bg-white flex flex-col items-center justify-center cursor-pointer transition hover:bg-emerald-50">
                         </div>
 
-                        <span class="text-xl font-extrabold text-emerald-800">＋</span>
+                        <span id="combine-op-symbol" class="text-xl font-extrabold text-emerald-800">＋</span>
 
                         <!-- 合成スロット2 (R2) -->
                         <div id="comb-slot-1" onclick="handleCombineSlotClick(1)" ondragover="allowDrop(event)" ondrop="handleCombineDrop(event, 1)"
@@ -676,7 +736,38 @@
                 R: { 1: [], 2: [], 3: [] }  // 今後追加予定：直列・抵抗①〜③（各5問）
             },
             parallel: {
-                V: { 1: [], 2: [], 3: [] }, // 今後追加予定：並列・電圧①〜③（各5問）
+                V: {
+                    // 【今回追加】並列回路で電源の電圧を求める問題①（まずは1問）
+                    1: [
+                        {
+                            id: "p-v-1-1",
+                            title: "並列回路：電源の電圧(V)①",
+                            text: "全体の電流 ＝ 0.5A、R₁の電流 ＝ 0.1A、<br>R₂の抵抗 ＝ 20Ω のときの電源の電圧Vは？",
+                            diagram: { iTotal: "0.5A", i1: "0.1A", r2: "20Ω", v: "V", v2: "V₂", i2: "I₂" },
+                            initialBlocks: ["0.5", "0.1", "20"],
+                            combineTask: {
+                                inputs: ["0.5", "0.1"],
+                                op: "-",
+                                orderMatters: true,
+                                slotLabels: ["全体 I [A]", "R₁のI₁ [A]"],
+                                workbenchTitle: "並列回路の「R₂を流れる電流（I₂）」を作ろう！（ I₂ ＝ 全体の電流 － R₁の電流 ）",
+                                result: "0.4",
+                                unit: "A",
+                                badgeText: "✨R₂の電流",
+                                label: "R₂の電流(A)",
+                                formulaPrefix: "R₂の電流 I₂",
+                                modalTitle: "ステップ1：R₂に流れる電流（I₂）を計算しよう！"
+                            },
+                            expected: { V: "V", R: "20", I: "0.4" },
+                            mATrap: null,
+                            answer: 8,
+                            unit: "V",
+                            explanation: "R₂の電流 I₂ ＝ 0.5A － 0.1A ＝ 0.4A。並列回路の電圧はどこも同じなので V ＝ V₂ ＝ 0.4A × 20Ω ＝ 8V"
+                        }
+                    ],
+                    2: [], // 今後追加予定：並列・電圧②
+                    3: []  // 今後追加予定：並列・電圧③
+                },
                 I: { 1: [], 2: [], 3: [] }, // 今後追加予定：並列・電流①〜③（各5問）
                 R: { 1: [], 2: [], 3: [] }  // 今後追加予定：並列・抵抗①〜③（各5問）
             }
@@ -721,7 +812,8 @@
 
         // クリア状況の記録
         let solvedStatus = {
-            "series-V-1": [false, false, false, false, false]
+            "series-V-1": [false, false, false, false, false],
+            "parallel-V-1": [false]
         };
 
         // 初期化
@@ -735,32 +827,51 @@
             return CIRCUIT_DB[currentCircuit][currentCategory][currentPattern][currentIndex];
         }
 
+        // ヘッダーボタンのアクティブ表示を更新
+        function updateHeaderButtons() {
+            const sBtn = document.getElementById("circuit-btn-series");
+            const pBtn = document.getElementById("circuit-btn-parallel");
+            if (currentCircuit === "series") {
+                sBtn.className = "px-2.5 py-1 rounded-lg font-extrabold text-xs bg-indigo-600 text-white shadow-xs transition";
+                pBtn.className = "px-2.5 py-1 rounded-lg font-extrabold text-xs text-slate-500 hover:bg-slate-200 transition";
+            } else {
+                pBtn.className = "px-2.5 py-1 rounded-lg font-extrabold text-xs bg-indigo-600 text-white shadow-xs transition";
+                sBtn.className = "px-2.5 py-1 rounded-lg font-extrabold text-xs text-slate-500 hover:bg-slate-200 transition";
+            }
+        }
+
         // ナビゲーション切り替え（直列/並列、V/I/R、パターン1〜3）
         function selectCircuitType(type) {
-            if (type === "parallel") {
-                showComingSoonModal("並列回路の問題セット");
+            const list = CIRCUIT_DB[type]?.[currentCategory]?.[currentPattern];
+            if (!list || list.length === 0) {
+                const label = type === "parallel" ? "並列回路" : "直列回路";
+                showComingSoonModal(`${label}の問題セット`);
                 return;
             }
             isExampleMode = false;
             currentCircuit = type;
+            currentIndex = 0;
             loadQuestion();
         }
 
         function selectCategory(cat) {
-            if (cat !== "V") {
-                const label = cat === "I" ? "電流(I)を求める問題" : "抵抗(R)を求める問題";
-                showComingSoonModal(`直列回路：${label}`);
+            const list = CIRCUIT_DB[currentCircuit]?.[cat]?.[currentPattern];
+            if (!list || list.length === 0) {
+                const cLabel = currentCircuit === "parallel" ? "並列回路" : "直列回路";
+                const label = cat === "I" ? "電流(I)を求める問題" : cat === "R" ? "抵抗(R)を求める問題" : "電圧(V)を求める問題";
+                showComingSoonModal(`${cLabel}：${label}`);
                 return;
             }
             isExampleMode = false;
             currentCategory = cat;
+            currentIndex = 0;
             loadQuestion();
         }
 
         function selectPattern(pat) {
             const list = CIRCUIT_DB[currentCircuit][currentCategory][pat];
             if (!list || list.length === 0) {
-                showComingSoonModal(`パターン${pat}の問題セット（5問）`);
+                showComingSoonModal(`パターン${pat}の問題セット`);
                 return;
             }
             isExampleMode = false;
@@ -832,16 +943,19 @@
             keypadInput = "";
             isSolved = false;
 
+            updateHeaderButtons();
+
             const q = getCurrentQuestion();
             const key = `${currentCircuit}-${currentCategory}-${currentPattern}`;
             const statusArr = solvedStatus[key] || [];
+            const totalQ = statusArr.length || 1;
 
             if (isExampleMode) {
                 document.getElementById("question-counter").textContent = "図の例題";
                 document.getElementById("example-btn").className = "px-2.5 py-1 rounded-lg font-extrabold text-xs border-2 border-amber-500 bg-amber-400 text-slate-900 shadow-xs transition shrink-0";
             } else {
                 const isCleared = statusArr[currentIndex];
-                document.getElementById("question-counter").textContent = `第 ${currentIndex + 1} / 5 問${isCleared ? ' ⭐' : ''}`;
+                document.getElementById("question-counter").textContent = `第 ${currentIndex + 1} / ${totalQ} 問${isCleared ? ' ⭐' : ''}`;
                 document.getElementById("example-btn").className = "px-2.5 py-1 rounded-lg font-extrabold text-xs border-2 border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 transition shrink-0";
             }
 
@@ -852,7 +966,7 @@
             const clearedCount = statusArr.filter(Boolean).length;
             const progBadge = document.getElementById("clear-progress-badge");
             if (progBadge) {
-                progBadge.textContent = `⭐ ${clearedCount} / 5 クリア`;
+                progBadge.textContent = `⭐ ${clearedCount} / ${totalQ} クリア`;
             }
 
             renderAll();
@@ -871,18 +985,46 @@
         // 左上の回路図SVGを現在の問題・進行状況に合わせて更新
         function renderCircuitDiagram() {
             const q = getCurrentQuestion();
-            document.getElementById("svg-r1-val").textContent = q.diagram.r1;
-            document.getElementById("svg-r2-val").textContent = q.diagram.r2;
-            document.getElementById("svg-i-val").textContent = q.diagram.i;
-            document.getElementById("svg-v-label").textContent = isSolved ? `V=${q.answer}V` : "V";
+            const seriesGroup = document.getElementById("svg-series-circuit");
+            const parallelGroup = document.getElementById("svg-parallel-circuit");
 
-            const combGroup = document.getElementById("svg-combined-group");
-            const combText = document.getElementById("svg-combined-text");
-            if (isCombinedSolved) {
-                combGroup.classList.remove("hidden");
-                combText.textContent = `合成抵抗 ${q.combineTask.result}Ω`;
+            const isParallel = (!isExampleMode && currentCircuit === "parallel");
+
+            if (isParallel) {
+                seriesGroup.classList.add("hidden");
+                parallelGroup.classList.remove("hidden");
+
+                document.getElementById("svg-p-i-total").textContent = q.diagram.iTotal;
+                document.getElementById("svg-p-i1-val").textContent = q.diagram.i1;
+                document.getElementById("svg-p-r2-val").textContent = q.diagram.r2;
+                document.getElementById("svg-p-v-label").textContent = isSolved ? `V=${q.answer}V` : "V";
+                document.getElementById("svg-p-v2-label").textContent = isSolved ? `V₂=${q.answer}V` : "V₂";
+
+                const i2El = document.getElementById("svg-p-i2-val");
+                if (isCombinedSolved) {
+                    i2El.textContent = `I₂=${q.combineTask.result}A`;
+                    i2El.setAttribute("fill", "#059669");
+                } else {
+                    i2El.textContent = "I₂";
+                    i2El.setAttribute("fill", "#dc2626");
+                }
             } else {
-                combGroup.classList.add("hidden");
+                parallelGroup.classList.add("hidden");
+                seriesGroup.classList.remove("hidden");
+
+                document.getElementById("svg-r1-val").textContent = q.diagram.r1;
+                document.getElementById("svg-r2-val").textContent = q.diagram.r2;
+                document.getElementById("svg-i-val").textContent = q.diagram.i;
+                document.getElementById("svg-v-label").textContent = isSolved ? `V=${q.answer}V` : "V";
+
+                const combGroup = document.getElementById("svg-combined-group");
+                const combText = document.getElementById("svg-combined-text");
+                if (isCombinedSolved) {
+                    combGroup.classList.remove("hidden");
+                    combText.textContent = `合成抵抗 ${q.combineTask.result}Ω`;
+                } else {
+                    combGroup.classList.add("hidden");
+                }
             }
         }
 
@@ -925,6 +1067,7 @@
             // 合成抵抗ブロックが完成している場合は、新しいブロックとして追加表示！
             if (isCombinedSolved) {
                 const combVal = q.combineTask.result;
+                const badgeText = q.combineTask.badgeText || "✨合成抵抗";
                 const isUsed = usedInOhm.includes(combVal);
                 const isSelected = selectedBlockValue === combVal;
 
@@ -939,7 +1082,7 @@
                 } else {
                     btn.className = `block-btn block-combined px-3.5 h-12 rounded-xl border-3 border-emerald-600 bg-emerald-100 text-emerald-950 font-extrabold flex flex-col items-center justify-center cursor-pointer ${isSelected ? 'selected' : 'hover:bg-emerald-200/70'}`;
                 }
-                btn.innerHTML = `<span class="text-xl lg:text-2xl leading-none">${combVal}</span><span class="text-[9px] font-extrabold text-emerald-700 mt-0.5">✨合成抵抗</span>`;
+                btn.innerHTML = `<span class="text-xl lg:text-2xl leading-none">${combVal}</span><span class="text-[9px] font-extrabold text-emerald-700 mt-0.5">${badgeText}</span>`;
                 numContainer.appendChild(btn);
             }
 
@@ -973,13 +1116,23 @@
         // 左下：合成抵抗を作るワークベンチの描画
         function renderCombineWorkbench() {
             const q = getCurrentQuestion();
+            const task = q.combineTask;
             const statusEl = document.getElementById("combine-status");
             const resultArea = document.getElementById("comb-result-area");
+            const titleEl = document.getElementById("combine-workbench-title");
+            const opEl = document.getElementById("combine-op-symbol");
+
+            titleEl.textContent = task.workbenchTitle || "直列回路の「全体の抵抗（合成抵抗）」を作ろう！（ R ＝ R₁ ＋ R₂ ）";
+            opEl.textContent = task.op === "-" ? "－" : "＋";
+
+            const slotLabels = task.slotLabels || ["R₁ [Ω]", "R₂ [Ω]"];
+            const combUnit = task.unit || "Ω";
+            const combPrefix = task.formulaPrefix || "合成抵抗";
 
             [0, 1].forEach(idx => {
                 const slotEl = document.getElementById(`comb-slot-${idx}`);
                 const val = combineSlots[idx];
-                const label = idx === 0 ? "R₁ [Ω]" : "R₂ [Ω]";
+                const label = slotLabels[idx];
                 const highlight = (selectedBlockValue !== null && val === null && !isCombinedSolved) ? "slot-active border-blue-500" : "";
 
                 if (val === null) {
@@ -998,35 +1151,43 @@
             const bothFilled = combineSlots[0] !== null && combineSlots[1] !== null;
 
             if (isCombinedSolved) {
-                statusEl.innerHTML = `<span class="text-emerald-800 font-extrabold">✅ 合成抵抗 ${q.combineTask.result}Ω が完成！</span>`;
+                statusEl.innerHTML = `<span class="text-emerald-800 font-extrabold">✅ ${combPrefix} ${task.result}${combUnit} が完成！</span>`;
                 resultArea.innerHTML = `
                     <div class="px-3 py-1.5 rounded-xl border-3 border-emerald-600 bg-emerald-600 text-white font-extrabold text-xl flex items-center space-x-1 shadow-xs">
-                        <span>${q.combineTask.result}</span>
-                        <span class="text-xs">Ω</span>
+                        <span>${task.result}</span>
+                        <span class="text-xs">${combUnit}</span>
                     </div>
                 `;
             } else if (!bothFilled) {
-                statusEl.textContent = "R₁ と R₂ のブロックを入れよう";
+                statusEl.textContent = `${slotLabels[0]} と ${slotLabels[1]} を入れよう`;
                 resultArea.innerHTML = `
                     <div class="w-24 h-13 rounded-xl border-2 border-dashed border-emerald-300 bg-white/60 flex items-center justify-center text-xs font-bold text-emerald-400">
-                        合成抵抗
+                        ${combPrefix}
                     </div>
                 `;
             } else {
-                // 正しい2つの抵抗ブロックが入っているかチェック（順不同OK）
-                const expectedInputs = [...q.combineTask.inputs].sort();
+                const expectedInputs = [...task.inputs].sort();
                 const currentInputs = [...combineSlots].sort();
-                const isPairCorrect = expectedInputs[0] === currentInputs[0] && expectedInputs[1] === currentInputs[1];
+                const isSetCorrect = expectedInputs[0] === currentInputs[0] && expectedInputs[1] === currentInputs[1];
+                const isOrderCorrect = !task.orderMatters || (combineSlots[0] === task.inputs[0] && combineSlots[1] === task.inputs[1]);
 
-                if (isPairCorrect) {
-                    statusEl.innerHTML = `<span class="text-blue-700 font-extrabold animate-pulse">👉 足し算してブロックを作ろう！</span>`;
+                if (isSetCorrect && isOrderCorrect) {
+                    const actionWord = task.op === "-" ? "引き算" : "足し算";
+                    statusEl.innerHTML = `<span class="text-blue-700 font-extrabold animate-pulse">👉 ${actionWord}してブロックを作ろう！</span>`;
                     resultArea.innerHTML = `
                         <button onclick="openCombineKeypad()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs lg:text-sm px-3 py-2.5 rounded-xl shadow-md flex items-center space-x-1 animate-bounce cursor-pointer">
                             <span>🧮 計算して合体！</span>
                         </button>
                     `;
+                } else if (isSetCorrect && !isOrderCorrect) {
+                    statusEl.innerHTML = `<span class="text-amber-700 font-extrabold">⚠️ 引き算の順番を逆にしよう！（${task.inputs[0]} － ${task.inputs[1]}）</span>`;
+                    resultArea.innerHTML = `
+                        <div class="px-2.5 py-1.5 rounded-xl bg-amber-100 border border-amber-300 text-amber-800 font-bold text-xs">
+                            順番が逆です
+                        </div>
+                    `;
                 } else {
-                    statusEl.innerHTML = `<span class="text-rose-600 font-extrabold">⚠️ R₁ と R₂ の抵抗(Ω)を選ぼう！</span>`;
+                    statusEl.innerHTML = `<span class="text-rose-600 font-extrabold">⚠️ 組み合わせる2つの数字を選ぼう！</span>`;
                     resultArea.innerHTML = `
                         <div class="px-2.5 py-1.5 rounded-xl bg-rose-100 border border-rose-300 text-rose-700 font-bold text-xs">
                             ブロックが違います
@@ -1038,10 +1199,11 @@
 
         // 右上のT字サークルの3つのスロットを描画
         function renderSlots() {
+            const isParallel = (!isExampleMode && currentCircuit === "parallel");
             const slotMeta = {
-                V: { title: "V", sub: "電圧 [V]", emptyBorder: "border-rose-300 bg-rose-50/70 text-rose-300", filledClass: "border-rose-500 bg-rose-50 text-rose-900 shadow-md" },
-                R: { title: "R", sub: "全体の抵抗[Ω]", emptyBorder: "border-emerald-300 bg-emerald-50/70 text-emerald-300", filledClass: "border-emerald-500 bg-emerald-50 text-emerald-900 shadow-md" },
-                I: { title: "I", sub: "全体の電流[A]", emptyBorder: "border-blue-300 bg-blue-50/70 text-blue-300", filledClass: "border-blue-500 bg-blue-50 text-blue-900 shadow-md" }
+                V: { title: "V", sub: isParallel ? "電圧(V=V₂)[V]" : "電圧 [V]", emptyBorder: "border-rose-300 bg-rose-50/70 text-rose-300", filledClass: "border-rose-500 bg-rose-50 text-rose-900 shadow-md" },
+                R: { title: "R", sub: isParallel ? "R₂の抵抗[Ω]" : "全体の抵抗[Ω]", emptyBorder: "border-emerald-300 bg-emerald-50/70 text-emerald-300", filledClass: "border-emerald-500 bg-emerald-50 text-emerald-900 shadow-md" },
+                I: { title: "I", sub: isParallel ? "R₂の電流[A]" : "全体の電流[A]", emptyBorder: "border-blue-300 bg-blue-50/70 text-blue-300", filledClass: "border-blue-500 bg-blue-50 text-blue-900 shadow-md" }
             };
 
             ["V", "R", "I"].forEach(key => {
@@ -1178,11 +1340,13 @@
             const banner = document.getElementById("guide-banner");
             const text = document.getElementById("guide-text");
             const q = getCurrentQuestion();
+            const isParallel = (!isExampleMode && currentCircuit === "parallel");
 
             if (selectedBlockValue !== null) {
                 banner.className = "bg-indigo-600 border-2 border-indigo-700 text-white px-3 py-1.5 rounded-xl font-bold text-xs lg:text-sm mb-2.5 flex items-center justify-between shadow-xs";
                 if (!isCombinedSolved && q.combineTask.inputs.includes(selectedBlockValue)) {
-                    text.innerHTML = `「 <strong>${selectedBlockValue}</strong> 」を選択中！ 下の緑色の「組み合わせ（R₁＋R₂）」に入れよう 👇`;
+                    const opLabel = q.combineTask.op === "-" ? "I － I₁" : "R₁＋R₂";
+                    text.innerHTML = `「 <strong>${selectedBlockValue}</strong> 」を選択中！ 下の緑色の「組み合わせ（${opLabel}）」に入れよう 👇`;
                 } else {
                     text.innerHTML = `「 <strong>${selectedBlockValue}</strong> 」を選択中！ 右の丸い図の当てはまる場所をタップしよう 👉`;
                 }
@@ -1191,11 +1355,16 @@
 
             banner.className = "bg-blue-50 border-2 border-blue-200 text-blue-800 px-3 py-1.5 rounded-xl font-bold text-xs lg:text-sm mb-2.5 flex items-center justify-between";
             if (!isCombinedSolved) {
-                text.innerHTML = "① まずは <strong>R₁</strong> と <strong>R₂</strong> の数字ブロックを下の緑の枠に入れて「合成抵抗」を作ろう！";
+                if (isParallel) {
+                    text.innerHTML = "① まずは <strong>全体の電流(0.5)</strong> と <strong>R₁の電流(0.1)</strong> を下の緑の枠に入れて「R₂の電流 I₂」を作ろう！";
+                } else {
+                    text.innerHTML = "① まずは <strong>R₁</strong> と <strong>R₂</strong> の数字ブロックを下の緑の枠に入れて「合成抵抗」を作ろう！";
+                }
             } else {
                 const filledCount = Object.values(slots).filter(v => v !== null).length;
                 if (filledCount < 3) {
-                    text.innerHTML = `② 作った「<strong>${q.combineTask.result}</strong>(合成抵抗)」と「電流」「V」を右の丸い図に入れよう！（あと ${3 - filledCount} 個）`;
+                    const combName = q.combineTask.label || "合成抵抗";
+                    text.innerHTML = `② 作った「<strong>${q.combineTask.result}</strong>(${combName})」と残りのブロックを右の丸い図に入れよう！（あと ${3 - filledCount} 個）`;
                 } else {
                     text.textContent = "③ 3か所すべて埋まりました！ 右下の数式を見て計算しよう！";
                 }
@@ -1205,6 +1374,8 @@
         // 右下の数式ボックスと判定フィードバックの描画
         function renderFormulaAndFeedback() {
             const q = getCurrentQuestion();
+            const task = q.combineTask;
+            const isParallel = (!isExampleMode && currentCircuit === "parallel");
             const formulaArea = document.getElementById("formula-box-area");
             const feedbackArea = document.getElementById("feedback-area");
             const statusBadge = document.getElementById("formula-status-badge");
@@ -1214,13 +1385,17 @@
             const iVal = slots.I;
             const isAllFilled = (vVal !== null && rVal !== null && iVal !== null);
 
-            // ステップ1の合成抵抗式バッジ
+            const combUnit = task.unit || "Ω";
+            const combOp = task.op === "-" ? "－" : "＋";
+            const combPrefix = task.formulaPrefix || "合成抵抗";
+
+            // ステップ1の式バッジ
             const step1HTML = isCombinedSolved
                 ? `<div class="text-xs font-extrabold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-lg">
-                       合成抵抗 ＝ ${q.combineTask.inputs[0]}Ω ＋ ${q.combineTask.inputs[1]}Ω ＝ <strong>${q.combineTask.result}Ω</strong>
+                       ${combPrefix} ＝ ${task.inputs[0]}${combUnit} ${combOp} ${task.inputs[1]}${combUnit} ＝ <strong>${task.result}${combUnit}</strong>
                    </div>`
                 : `<div class="text-xs font-bold text-slate-400 bg-slate-50 border border-slate-200 px-3 py-1 rounded-lg">
-                       合成抵抗 ＝ ？Ω ＋ ？Ω ＝ ？Ω
+                       ${combPrefix} ＝ ？${combUnit} ${combOp} ？${combUnit} ＝ ？${combUnit}
                    </div>`;
 
             const symbolsList = ["V", "I", "R"];
@@ -1241,11 +1416,17 @@
 
                 formulaArea.innerHTML = step1HTML + createBoxedEquationHTML(lhs, rhs1, op, rhs2, false);
 
-                // もし合成前の単独の抵抗(R1やR2)を直接Rスロットに入れていた場合の親切なヒント
-                if (rVal !== null && q.combineTask.inputs.includes(rVal)) {
+                // もし合成前の単独のブロックを直接スロットに入れていた場合の親切なヒント
+                if (!isParallel && rVal !== null && task.inputs.includes(rVal)) {
                     feedbackArea.innerHTML = `
                         <div class="w-full bg-amber-50 border-2 border-amber-300 text-amber-900 px-3 py-1.5 rounded-xl font-bold text-xs text-center">
                             💡 直列回路では <strong>${rVal}Ω だけ</strong>ではなく、2つを足した<strong>「合成抵抗」</strong>を作ってRに入れよう！
+                        </div>
+                    `;
+                } else if (isParallel && iVal !== null && task.inputs.includes(iVal)) {
+                    feedbackArea.innerHTML = `
+                        <div class="w-full bg-amber-50 border-2 border-amber-300 text-amber-900 px-3 py-1.5 rounded-xl font-bold text-xs text-center">
+                            💡 R₂の抵抗(20Ω)を使うので、I には引き算で作った<strong>「R₂の電流 I₂（${task.result}A）」</strong>を入れよう！
                         </div>
                     `;
                 } else {
@@ -1266,24 +1447,24 @@
             }
 
             const targetKey = symbolSlots[0];
-            const symStr = slots[targetKey];
-            let rhs1 = "", op = "", rhs2 = "";
-
-            if (targetKey === "V") { op = "×"; rhs1 = rVal; rhs2 = iVal; }
-            else if (targetKey === "I") { op = "÷"; rhs1 = vVal; rhs2 = rVal; }
-            else if (targetKey === "R") { op = "÷"; rhs1 = vVal; rhs2 = iVal; }
-
-            const isCorrectPlacement = (slots.V === q.expected.V && slots.R === q.expected.R && slots.I === q.expected.I);
-
-            formulaArea.innerHTML = step1HTML + createBoxedEquationHTML(symStr, rhs1, op, rhs2, isCorrectPlacement);
-
-            // 合成前の抵抗を入れてしまっている場合
-            if (!isCorrectPlacement && q.combineTask.inputs.includes(rVal)) {
+            // 合成前の抵抗や電流を入れてしまっている場合
+            if (!isCorrectPlacement && !isParallel && task.inputs.includes(rVal)) {
                 statusBadge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800";
                 statusBadge.textContent = "合成抵抗を使おう！";
                 feedbackArea.innerHTML = `
                     <div class="w-full bg-amber-50 border-2 border-amber-300 text-amber-900 px-3 py-1.5 rounded-xl font-bold text-xs text-center">
-                        💡 Rには ${rVal}Ω ではなく、R₁とR₂を合わせた<strong>「合成抵抗（${q.combineTask.result}Ω）」</strong>のブロックを入れよう！
+                        💡 Rには ${rVal}Ω ではなく、R₁とR₂を合わせた<strong>「合成抵抗（${task.result}Ω）」</strong>のブロックを入れよう！
+                    </div>
+                `;
+                return;
+            }
+
+            if (!isCorrectPlacement && isParallel && task.inputs.includes(iVal)) {
+                statusBadge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800";
+                statusBadge.textContent = "R₂の電流を使おう！";
+                feedbackArea.innerHTML = `
+                    <div class="w-full bg-amber-50 border-2 border-amber-300 text-amber-900 px-3 py-1.5 rounded-xl font-bold text-xs text-center">
+                        💡 I には ${iVal}A ではなく、引き算で作った<strong>「R₂の電流 I₂（${task.result}A）」</strong>のブロックを入れよう！
                     </div>
                 `;
                 return;
@@ -1378,13 +1559,18 @@
         // ==========================================
         function openCombineKeypad() {
             const q = getCurrentQuestion();
+            const task = q.combineTask;
+            const combUnit = task.unit || "Ω";
+            const combOp = task.op === "-" ? "－" : "＋";
+            const combPrefix = task.formulaPrefix || "合成抵抗";
+
             keypadMode = "combine";
             keypadInput = "";
 
-            document.getElementById("modal-title").textContent = "ステップ1：全体の抵抗（合成抵抗）を計算しよう！";
-            document.getElementById("modal-formula-preview").textContent = `合成抵抗 ＝ ${combineSlots[0]}Ω ＋ ${combineSlots[1]}Ω`;
-            document.getElementById("modal-target-symbol").textContent = "合成抵抗：";
-            document.getElementById("modal-unit").textContent = "Ω";
+            document.getElementById("modal-title").textContent = task.modalTitle || "ステップ1：全体の抵抗（合成抵抗）を計算しよう！";
+            document.getElementById("modal-formula-preview").textContent = `${combPrefix} ＝ ${combineSlots[0]}${combUnit} ${combOp} ${combineSlots[1]}${combUnit}`;
+            document.getElementById("modal-target-symbol").textContent = `${combPrefix}：`;
+            document.getElementById("modal-unit").textContent = combUnit;
             document.getElementById("keypad-display").textContent = "";
             document.getElementById("modal-hint-message").classList.add("hidden");
 
@@ -1476,12 +1662,13 @@
         function loadQuestionStateAfterSolve() {
             const key = `${currentCircuit}-${currentCategory}-${currentPattern}`;
             const statusArr = solvedStatus[key] || [];
+            const totalQ = statusArr.length || 1;
             if (!isExampleMode) {
-                document.getElementById("question-counter").textContent = `第 ${currentIndex + 1} / 5 問 ⭐`;
+                document.getElementById("question-counter").textContent = `第 ${currentIndex + 1} / ${totalQ} 問 ⭐`;
                 const clearedCount = statusArr.filter(Boolean).length;
                 const progBadge = document.getElementById("clear-progress-badge");
                 if (progBadge) {
-                    progBadge.textContent = `⭐ ${clearedCount} / 5 クリア`;
+                    progBadge.textContent = `⭐ ${clearedCount} / ${totalQ} クリア`;
                 }
             }
             renderAll();
@@ -1494,11 +1681,12 @@
             document.getElementById("correct-modal-explanation").textContent = q.explanation;
 
             const key = `${currentCircuit}-${currentCategory}-${currentPattern}`;
-            const allCleared = !isExampleMode && solvedStatus[key].every(Boolean);
+            const statusArr = solvedStatus[key] || [];
+            const allCleared = !isExampleMode && statusArr.every(Boolean);
             const nextBtn = document.getElementById("correct-modal-next-btn");
 
             if (allCleared) {
-                nextBtn.innerHTML = "🏆 全5問クリア結果を見る！ ▶";
+                nextBtn.innerHTML = `🏆 全${statusArr.length}問クリア結果を見る！ ▶`;
                 nextBtn.className = "flex-1 bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold text-lg py-3 px-6 rounded-2xl shadow-lg active:translate-y-0.5 transition";
             } else {
                 nextBtn.innerHTML = "次の問題へすすむ ▶";
@@ -1544,6 +1732,14 @@
 
         // 全5問クリアモーダル
         function showLevelClearModal() {
+            const key = `${currentCircuit}-${currentCategory}-${currentPattern}`;
+            const totalQ = (solvedStatus[key] || []).length;
+            const cName = currentCircuit === "parallel" ? "並列回路" : "直列回路";
+            document.getElementById("clear-modal-title").textContent = `${cName}・電圧① 全${totalQ}問クリア！！`;
+            document.getElementById("clear-modal-subtitle").textContent = currentCircuit === "parallel"
+                ? "並列回路の電流の引き算と電圧のルールをマスターしたね！🎉"
+                : "合成抵抗ブロックを作って電圧を求める計算をマスターしたね！🎉";
+
             const modal = document.getElementById("level-clear-modal");
             modal.classList.remove("hidden");
             modal.classList.add("flex");
@@ -1558,7 +1754,7 @@
 
         function replayCurrentLevel() {
             const key = `${currentCircuit}-${currentCategory}-${currentPattern}`;
-            solvedStatus[key] = [false, false, false, false, false];
+            solvedStatus[key] = solvedStatus[key].map(() => false);
             closeLevelClearModal();
             currentIndex = 0;
             loadQuestion();
