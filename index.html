@@ -1,0 +1,1585 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>直列・並列回路 計算マスター</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=M+PLUS+Rounded+1c:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'M PLUS Rounded 1c', sans-serif;
+            touch-action: manipulation;
+            user-select: none;
+            -webkit-user-select: none;
+            overflow: hidden;
+        }
+
+        /* T字の丸（オームの法則サークル）のスタイル */
+        .ohm-circle {
+            position: relative;
+            width: 240px;
+            height: 240px;
+            border-radius: 50%;
+            border: 5px solid #1e293b;
+            background: #ffffff;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.08), 0 8px 10px -6px rgba(0, 0, 0, 0.08);
+            margin: 0 auto;
+        }
+
+        @media (min-width: 1024px) {
+            .ohm-circle {
+                width: 265px;
+                height: 265px;
+            }
+        }
+
+        /* 横線 */
+        .ohm-line-h {
+            position: absolute;
+            top: 48%;
+            left: 0;
+            width: 100%;
+            height: 5px;
+            background-color: #1e293b;
+        }
+
+        /* 縦線 */
+        .ohm-line-v {
+            position: absolute;
+            top: 48%;
+            left: 50%;
+            width: 5px;
+            height: 52%;
+            background-color: #1e293b;
+            transform: translateX(-50%);
+        }
+
+        /* 演算記号バッジ */
+        .op-badge {
+            position: absolute;
+            background-color: #f8fafc;
+            border: 3px solid #475569;
+            color: #0f172a;
+            font-weight: 800;
+            font-size: 1.15rem;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        /* スロット（当てはめる場所）のアニメーション */
+        .slot-active {
+            animation: pulse-ring 1.5s infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.6); }
+            70% { box-shadow: 0 0 0 10px rgba(59, 130, 246, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+        }
+
+        /* ブロックの立体感 */
+        .block-btn {
+            transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 4px 0 #cbd5e1;
+        }
+        .block-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #cbd5e1;
+        }
+        .block-btn.selected {
+            transform: translateY(-4px) scale(1.06);
+            box-shadow: 0 8px 15px -3px rgba(59, 130, 246, 0.4), 0 4px 0 #2563eb;
+            border-color: #2563eb;
+            background-color: #eff6ff;
+        }
+
+        /* 合成して新しく生まれたブロックの特別エフェクト */
+        .block-combined {
+            box-shadow: 0 4px 0 #059669;
+            animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .block-combined.selected {
+            box-shadow: 0 8px 15px -3px rgba(16, 185, 129, 0.45), 0 4px 0 #047857;
+            border-color: #047857;
+            background-color: #d1fae5;
+        }
+
+        /* 数字キーパッドのボタン */
+        .numpad-btn {
+            box-shadow: 0 4px 0 #94a3b8;
+            transition: all 0.1s;
+        }
+        .numpad-btn:active {
+            transform: translateY(3px);
+            box-shadow: 0 1px 0 #94a3b8;
+        }
+
+        @keyframes pop-in {
+            0% { transform: scale(0.5); opacity: 0; }
+            70% { transform: scale(1.08); opacity: 1; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        .animate-pop-in {
+            animation: pop-in 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+
+        @keyframes float-slow {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-10px) rotate(4deg); }
+        }
+        .animate-float {
+            animation: float-slow 2.5s ease-in-out infinite;
+        }
+
+        @keyframes confetti-fall {
+            0% { transform: translateY(-20px) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
+        }
+        .confetti-piece {
+            position: absolute;
+            top: -20px;
+            width: 12px;
+            height: 24px;
+            border-radius: 3px;
+            animation: confetti-fall linear forwards;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 h-screen w-screen flex flex-col select-none">
+
+    <!-- トップヘッダー（回路選択・問題種別・進捗） -->
+    <header class="bg-white border-b-2 border-slate-200 px-3 py-1.5 flex items-center justify-between shrink-0 shadow-xs z-20 gap-2">
+        <!-- ロゴ＆回路切り替え -->
+        <div class="flex items-center space-x-2 shrink-0">
+            <span class="bg-amber-400 text-slate-900 p-1.5 rounded-lg font-extrabold text-lg flex items-center justify-center shadow-xs">⚡</span>
+            <h1 class="text-base lg:text-lg font-extrabold text-slate-800 tracking-tight hidden sm:block">回路計算マスター</h1>
+            
+            <!-- 直列 / 並列 切り替え -->
+            <div class="flex bg-slate-100 p-0.5 rounded-xl border border-slate-200 ml-1">
+                <button onclick="selectCircuitType('series')" id="circuit-btn-series" class="px-2.5 py-1 rounded-lg font-extrabold text-xs bg-indigo-600 text-white shadow-xs transition">
+                    直列回路
+                </button>
+                <button onclick="selectCircuitType('parallel')" id="circuit-btn-parallel" class="px-2.5 py-1 rounded-lg font-extrabold text-xs text-slate-500 hover:bg-slate-200 transition">
+                    並列回路
+                </button>
+            </div>
+        </div>
+
+        <!-- 求める値（V / I / R）＆ パターン（1〜3）選択 -->
+        <div class="flex items-center space-x-1.5 overflow-x-auto py-0.5">
+            <!-- 電圧 / 電流 / 抵抗 -->
+            <div class="flex bg-slate-100 p-0.5 rounded-xl border border-slate-200">
+                <button onclick="selectCategory('V')" id="cat-btn-V" class="px-2.5 py-1 rounded-lg font-bold text-xs bg-rose-500 text-white shadow-xs transition">
+                    電圧(V)
+                </button>
+                <button onclick="selectCategory('I')" id="cat-btn-I" class="px-2.5 py-1 rounded-lg font-bold text-xs text-slate-600 hover:bg-slate-200 transition">
+                    電流(I)
+                </button>
+                <button onclick="selectCategory('R')" id="cat-btn-R" class="px-2.5 py-1 rounded-lg font-bold text-xs text-slate-600 hover:bg-slate-200 transition">
+                    抵抗(R)
+                </button>
+            </div>
+
+            <!-- 種類（パターン1〜3） -->
+            <div class="flex bg-slate-100 p-0.5 rounded-xl border border-slate-200">
+                <button onclick="selectPattern(1)" id="pat-btn-1" class="px-2 py-1 rounded-lg font-bold text-xs bg-slate-800 text-white shadow-xs transition">
+                    ①基本
+                </button>
+                <button onclick="selectPattern(2)" id="pat-btn-2" class="px-2 py-1 rounded-lg font-bold text-xs text-slate-400 hover:bg-slate-200 transition">
+                    ②準備中
+                </button>
+                <button onclick="selectPattern(3)" id="pat-btn-3" class="px-2 py-1 rounded-lg font-bold text-xs text-slate-400 hover:bg-slate-200 transition">
+                    ③準備中
+                </button>
+            </div>
+
+            <!-- 添付画像の左図（15Ω, 25Ω, 0.1A）を試す例題ボタン -->
+            <button onclick="loadDiagramExample()" id="example-btn" class="px-2.5 py-1 rounded-lg font-extrabold text-xs border-2 border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 transition shrink-0">
+                📖 図の例題(0.1A)
+            </button>
+        </div>
+
+        <!-- 問題番号切り替え ＆ クリア状況 -->
+        <div class="flex items-center space-x-1.5 shrink-0">
+            <span id="clear-progress-badge" class="hidden xl:inline-flex items-center px-2.5 py-1 rounded-full text-xs font-extrabold bg-amber-100 text-amber-800 border border-amber-300">
+                ⭐ 0 / 5 クリア
+            </span>
+            <button onclick="prevQuestion()" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold border border-slate-300 active:translate-y-0.5 text-xs">
+                ◀
+            </button>
+            <div class="bg-slate-800 text-white px-2.5 py-1 rounded-lg font-bold text-xs lg:text-sm min-w-[85px] text-center" id="question-counter">
+                第 1 / 5 問
+            </div>
+            <button onclick="nextQuestion()" class="p-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold border border-slate-300 active:translate-y-0.5 text-xs">
+                ▶
+            </button>
+        </div>
+    </header>
+
+    <!-- メインコンテンツ（左右2カラム・1画面収まり） -->
+    <main class="flex-1 grid grid-cols-12 gap-3 p-3 overflow-hidden max-w-7xl w-full mx-auto">
+        
+        <!-- 左カラム：回路図＆問題文 ＋ ブロック置き場＆合成エリア (7列分) -->
+        <section class="col-span-7 flex flex-col gap-3 h-full overflow-hidden">
+            
+            <!-- 左上：回路図 ＆ 問題カード -->
+            <div class="bg-white rounded-2xl p-3.5 border-2 border-slate-200 shadow-xs flex flex-col justify-between shrink-0 relative overflow-hidden">
+                <div class="absolute top-0 left-0 w-2 h-full bg-rose-500" id="level-indicator-bar"></div>
+                
+                <div class="grid grid-cols-12 gap-3 items-center pl-2">
+                    <!-- 添付画像を忠実に再現した動的回路図SVG (5列分) -->
+                    <div class="col-span-5 bg-slate-50 rounded-xl border-2 border-slate-200 p-1.5 flex flex-col items-center justify-center relative">
+                        <svg viewBox="0 0 320 205" class="w-full h-auto max-h-[155px]">
+                            <!-- 電源Vの測定ライン -->
+                            <polyline points="118,52 118,22 135,22" fill="none" stroke="#0f172a" stroke-width="2.5"/>
+                            <polyline points="182,52 182,22 165,22" fill="none" stroke="#0f172a" stroke-width="2.5"/>
+                            <!-- V ラベル -->
+                            <text id="svg-v-label" x="150" y="29" text-anchor="middle" fill="#1d4ed8" font-size="22" font-weight="800">V=?</text>
+
+                            <!-- メイン回路の導線（上部左・上部右・左・右・下部） -->
+                            <line x1="30" y1="52" x2="144" y2="52" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+                            <line x1="156" y1="52" x2="270" y2="52" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+                            <line x1="30" y1="52" x2="30" y2="165" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+                            <line x1="270" y1="52" x2="270" y2="165" stroke="#0f172a" stroke-width="3" stroke-linecap="round"/>
+                            
+                            <!-- 下部導線（R1とR2の間を含む） -->
+                            <line x1="30" y1="165" x2="80" y2="165" stroke="#0f172a" stroke-width="3"/>
+                            <line x1="136" y1="165" x2="164" y2="165" stroke="#0f172a" stroke-width="3"/>
+                            <line x1="220" y1="165" x2="270" y2="165" stroke="#0f172a" stroke-width="3"/>
+
+                            <!-- 電源（電池記号：左が太く短いマイナス極、右が細く長いプラス極） -->
+                            <line x1="144" y1="41" x2="144" y2="63" stroke="#0f172a" stroke-width="4"/>
+                            <line x1="156" y1="32" x2="156" y2="72" stroke="#0f172a" stroke-width="2.5"/>
+
+                            <!-- 電流 I の表示（右側赤字＋下向き矢印） -->
+                            <text id="svg-i-val" x="276" y="102" fill="#dc2626" font-size="21" font-weight="800">2A</text>
+                            <line x1="288" y1="110" x2="288" y2="136" stroke="#0f172a" stroke-width="2.5"/>
+                            <polygon points="288,142 283,132 293,132" fill="#0f172a"/>
+
+                            <!-- 抵抗 R1 -->
+                            <text id="svg-r1-val" x="108" y="144" text-anchor="middle" fill="#15803d" font-size="19" font-weight="800">10Ω</text>
+                            <rect x="80" y="151" width="56" height="28" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>
+                            <text x="108" y="172" text-anchor="middle" fill="#15803d" font-size="18" font-weight="800">R₁</text>
+
+                            <!-- 抵抗 R2 -->
+                            <text id="svg-r2-val" x="192" y="144" text-anchor="middle" fill="#15803d" font-size="19" font-weight="800">20Ω</text>
+                            <rect x="164" y="151" width="56" height="28" fill="#ffffff" stroke="#0f172a" stroke-width="2.5"/>
+                            <text x="192" y="172" text-anchor="middle" fill="#15803d" font-size="18" font-weight="800">R₂</text>
+
+                            <!-- 合成抵抗が完成したときに表示されるハイライト枠 -->
+                            <g id="svg-combined-group" class="hidden">
+                                <rect x="72" y="124" width="156" height="74" rx="10" fill="none" stroke="#059669" stroke-width="2.5" stroke-dasharray="6,4"/>
+                                <rect x="95" y="182" width="110" height="21" rx="6" fill="#059669"/>
+                                <text id="svg-combined-text" x="150" y="197" text-anchor="middle" fill="#ffffff" font-size="13" font-weight="800">合成抵抗 30Ω</text>
+                            </g>
+                        </svg>
+                    </div>
+
+                    <!-- 問題文エリア (7列分) -->
+                    <div class="col-span-7 flex flex-col justify-between h-full py-1">
+                        <div>
+                            <div class="flex items-center justify-between mb-1.5">
+                                <span id="level-badge" class="text-xs font-extrabold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-700 border border-rose-200">
+                                    直列回路：電源の電圧（V）を求めよう ①
+                                </span>
+                            </div>
+                            <p id="question-text" class="text-lg lg:text-xl font-extrabold text-slate-800 leading-relaxed tracking-wide">
+                                <!-- 問題文がここに入ります -->
+                            </p>
+                        </div>
+
+                        <!-- 単位・ルールミニヒント -->
+                        <div class="mt-2 pt-2 border-t border-slate-100 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-500 font-bold">
+                            <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block mr-1"></span>V:電圧[V]</span>
+                            <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block mr-1"></span>I:電流[A] <span class="text-amber-600 ml-0.5">(1000mA=1A)</span></span>
+                            <span class="flex items-center"><span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block mr-1"></span>R:抵抗[Ω]</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 左下：ブロック置き場 ＆ ブロック合成（組み合わせ）エリア -->
+            <div class="bg-white rounded-2xl p-3.5 border-2 border-slate-200 shadow-xs flex-1 flex flex-col justify-between overflow-hidden">
+                <div>
+                    <!-- タイトルとやりなおしボタン -->
+                    <div class="flex items-center justify-between mb-2">
+                        <h2 class="text-sm lg:text-base font-extrabold text-slate-700 flex items-center">
+                            <span class="bg-blue-600 text-white rounded-full w-5 h-5 inline-flex items-center justify-center text-xs mr-1.5">1</span>
+                            ブロックを組み合わせて、右の図に入れよう！
+                        </h2>
+                        <button onclick="resetCurrentQuestion()" class="text-xs font-bold text-slate-500 hover:text-slate-800 bg-slate-100 hover:bg-slate-200 px-2.5 py-1 rounded-lg border border-slate-300 transition">
+                            🔄 やりなおす
+                        </button>
+                    </div>
+
+                    <!-- 操作ガイドバナー -->
+                    <div id="guide-banner" class="bg-blue-50 border-2 border-blue-200 text-blue-800 px-3 py-1.5 rounded-xl font-bold text-xs lg:text-sm mb-2.5 flex items-center justify-between">
+                        <span id="guide-text">まずは R₁ と R₂ のブロックを組み合わせて「全体の抵抗（合成抵抗）」を作ろう！</span>
+                    </div>
+
+                    <!-- ブロック一覧（数字ブロック ＆ 記号ブロック） -->
+                    <div class="grid grid-cols-12 gap-2 mb-2.5 items-center bg-slate-50 p-2.5 rounded-xl border border-slate-200">
+                        <div class="col-span-8 border-r border-slate-200 pr-2">
+                            <div class="text-[11px] font-extrabold text-slate-400 mb-1.5 flex items-center justify-between">
+                                <span>数字のブロック（わかっている数・作った数）</span>
+                            </div>
+                            <div id="number-blocks-container" class="flex flex-wrap gap-2">
+                                <!-- JSで生成 -->
+                            </div>
+                        </div>
+                        <div class="col-span-4 pl-1">
+                            <div class="text-[11px] font-extrabold text-slate-400 mb-1.5">求めたい記号 (1つ)</div>
+                            <div id="symbol-blocks-container" class="flex flex-wrap gap-1.5">
+                                <!-- JSで生成 -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ステップ1：ブロック合成（組み合わせ）ワークベンチ -->
+                <div class="bg-emerald-50/70 border-2 border-emerald-300 rounded-2xl p-2.5 flex flex-col justify-between">
+                    <div class="flex items-center justify-between mb-1">
+                        <span class="text-xs font-extrabold text-emerald-900 flex items-center">
+                            <span class="bg-emerald-600 text-white rounded-md px-1.5 py-0.5 text-[10px] mr-1.5">組み合わせ</span>
+                            直列回路の「全体の抵抗（合成抵抗）」を作ろう！（ R ＝ R₁ ＋ R₂ ）
+                        </span>
+                        <span id="combine-status" class="text-[11px] font-bold text-emerald-700">
+                            R₁ と R₂ の数字を入れよう
+                        </span>
+                    </div>
+
+                    <div class="flex items-center justify-center space-x-1.5 lg:space-x-2 my-1">
+                        <!-- 合成スロット1 (R1) -->
+                        <div id="comb-slot-0" onclick="handleCombineSlotClick(0)" ondragover="allowDrop(event)" ondrop="handleCombineDrop(event, 0)"
+                             class="w-20 h-13 rounded-xl border-3 border-dashed border-emerald-400 bg-white flex flex-col items-center justify-center cursor-pointer transition hover:bg-emerald-50">
+                        </div>
+
+                        <span class="text-xl font-extrabold text-emerald-800">＋</span>
+
+                        <!-- 合成スロット2 (R2) -->
+                        <div id="comb-slot-1" onclick="handleCombineSlotClick(1)" ondragover="allowDrop(event)" ondrop="handleCombineDrop(event, 1)"
+                             class="w-20 h-13 rounded-xl border-3 border-dashed border-emerald-400 bg-white flex flex-col items-center justify-center cursor-pointer transition hover:bg-emerald-50">
+                        </div>
+
+                        <span class="text-xl font-extrabold text-emerald-800">＝</span>
+
+                        <!-- 合成結果アクション / 生成された合成抵抗ブロック表示 -->
+                        <div id="comb-result-area" class="flex items-center">
+                            <!-- JSで動的に描画 -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <!-- 右カラム：T字の丸図 ＆ 数式・計算エリア (5列分) -->
+        <section class="col-span-5 flex flex-col gap-3 h-full overflow-hidden">
+            
+            <!-- 右上：T字の丸（オームの法則図） -->
+            <div class="bg-white rounded-2xl p-3 border-2 border-slate-200 shadow-xs flex flex-col items-center justify-center relative shrink-0">
+                <div class="w-full flex justify-between items-center mb-1 px-1">
+                    <span class="text-xs lg:text-sm font-extrabold text-slate-700 flex items-center">
+                        <span class="bg-blue-600 text-white rounded-full w-5 h-5 inline-flex items-center justify-center text-xs mr-1.5">2</span>
+                        オームの法則の図に当てはめよう
+                    </span>
+                    <span class="text-[11px] font-bold text-slate-400">タップで入れる / 外す</span>
+                </div>
+
+                <!-- 丸の中にTの字が入った図 -->
+                <div class="ohm-circle my-0.5">
+                    <!-- 横線と縦線 -->
+                    <div class="ohm-line-h"></div>
+                    <div class="ohm-line-v"></div>
+
+                    <!-- 割り算・掛け算の記号 -->
+                    <div class="op-badge" style="top: 48%; left: 25%; transform: translate(-50%, -50%);">÷</div>
+                    <div class="op-badge" style="top: 48%; left: 75%; transform: translate(-50%, -50%);">÷</div>
+                    <div class="op-badge" style="top: 74%; left: 50%; transform: translate(-50%, -50%);">×</div>
+
+                    <!-- 上スロット：V (全体の電圧) -->
+                    <div id="slot-V" onclick="handleSlotClick('V')" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'V')"
+                         class="absolute top-[6%] left-1/2 -translate-x-1/2 w-32 h-20 rounded-2xl border-4 border-dashed border-rose-300 bg-rose-50/70 flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-rose-100/80">
+                    </div>
+
+                    <!-- 左下スロット：R (全体の抵抗) -->
+                    <div id="slot-R" onclick="handleSlotClick('R')" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'R')"
+                         class="absolute bottom-[8%] left-[7%] w-24 h-20 rounded-2xl border-4 border-dashed border-emerald-300 bg-emerald-50/70 flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-emerald-100/80">
+                    </div>
+
+                    <!-- 右下スロット：I (全体の電流) -->
+                    <div id="slot-I" onclick="handleSlotClick('I')" ondragover="allowDrop(event)" ondrop="handleDrop(event, 'I')"
+                         class="absolute bottom-[8%] right-[7%] w-24 h-20 rounded-2xl border-4 border-dashed border-blue-300 bg-blue-50/70 flex flex-col items-center justify-center cursor-pointer transition-all hover:bg-blue-100/80">
+                    </div>
+                </div>
+            </div>
+
+            <!-- 右下：完成した数式 ＆ 答えの計算エリア -->
+            <div class="bg-white rounded-2xl p-3.5 border-2 border-slate-200 shadow-xs flex-1 flex flex-col justify-between overflow-hidden">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs lg:text-sm font-extrabold text-slate-700 flex items-center">
+                        <span class="bg-blue-600 text-white rounded-full w-5 h-5 inline-flex items-center justify-center text-xs mr-1.5">3</span>
+                        完成した数式と計算
+                    </span>
+                    <span id="formula-status-badge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500">
+                        図を埋めると式ができます
+                    </span>
+                </div>
+
+                <!-- 合成抵抗の式メモ ＆ オームの法則ボックス表示エリア -->
+                <div id="formula-box-area" class="my-auto py-1 flex flex-col items-center justify-center gap-1.5">
+                    <!-- JSで動的に描画 -->
+                </div>
+
+                <!-- フィードバックメッセージ ＆ アクションボタン -->
+                <div id="feedback-area" class="min-h-[44px] flex items-center justify-center">
+                    <!-- 正解・不正解のメッセージや「計算する」ボタン -->
+                </div>
+            </div>
+
+        </section>
+    </main>
+
+    <!-- タブレット用 計算キーパッドモーダル（合成抵抗の計算 ＆ 最終答えの計算 共通） -->
+    <div id="keypad-modal" class="fixed inset-0 bg-slate-900/50 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-2xl border-4 border-slate-200 animate-pop-in">
+            <div class="flex justify-between items-center mb-3">
+                <span id="modal-title" class="text-lg font-extrabold text-slate-700">式を計算して答えを出そう！</span>
+                <button onclick="closeKeypad()" class="text-slate-400 hover:text-slate-600 font-bold text-xl px-2">✕</button>
+            </div>
+
+            <!-- 作った式の確認表示 -->
+            <div id="modal-formula-preview" class="bg-slate-100 rounded-2xl p-3 mb-2 text-center font-extrabold text-2xl text-slate-800 border-2 border-slate-200">
+                V ＝ 30 × 2
+            </div>
+
+            <!-- 単位変換などの補足メッセージエリア -->
+            <div id="modal-hint-message" class="hidden bg-amber-50 border-2 border-amber-300 text-amber-900 rounded-xl px-3 py-2 mb-3 text-xs md:text-sm font-extrabold text-center">
+            </div>
+
+            <!-- 入力ディスプレイ -->
+            <div class="flex items-center justify-center space-x-2 mb-4">
+                <span id="modal-target-symbol" class="text-xl font-extrabold text-slate-700">答え：</span>
+                <div id="keypad-display" class="bg-blue-50 border-3 border-blue-400 rounded-2xl px-4 py-2 text-3xl font-extrabold text-blue-900 min-w-[140px] min-h-[54px] text-right flex items-center justify-end tracking-wider">
+                </div>
+                <span id="modal-unit" class="text-2xl font-extrabold text-slate-700">V</span>
+            </div>
+
+            <!-- テンキー -->
+            <div class="grid grid-cols-3 gap-2.5 mb-4">
+                <button onclick="pressKey('7')" class="numpad-btn bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-2xl py-3 rounded-xl border border-slate-300">7</button>
+                <button onclick="pressKey('8')" class="numpad-btn bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-2xl py-3 rounded-xl border border-slate-300">8</button>
+                <button onclick="pressKey('9')" class="numpad-btn bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-2xl py-3 rounded-xl border border-slate-300">9</button>
+                <button onclick="pressKey('4')" class="numpad-btn bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-2xl py-3 rounded-xl border border-slate-300">4</button>
+                <button onclick="pressKey('5')" class="numpad-btn bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-2xl py-3 rounded-xl border border-slate-300">5</button>
+                <button onclick="pressKey('6')" class="numpad-btn bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-2xl py-3 rounded-xl border border-slate-300">6</button>
+                <button onclick="pressKey('1')" class="numpad-btn bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-2xl py-3 rounded-xl border border-slate-300">1</button>
+                <button onclick="pressKey('2')" class="numpad-btn bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-2xl py-3 rounded-xl border border-slate-300">2</button>
+                <button onclick="pressKey('3')" class="numpad-btn bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-2xl py-3 rounded-xl border border-slate-300">3</button>
+                <button onclick="pressKey('0')" class="numpad-btn bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-2xl py-3 rounded-xl border border-slate-300">0</button>
+                <button onclick="pressKey('.')" class="numpad-btn bg-slate-100 hover:bg-slate-200 text-slate-800 font-extrabold text-2xl py-3 rounded-xl border border-slate-300">.</button>
+                <button onclick="pressKey('BS')" class="numpad-btn bg-amber-100 hover:bg-amber-200 text-amber-900 font-extrabold text-xl py-3 rounded-xl border border-amber-300">1字消す</button>
+            </div>
+
+            <button id="modal-submit-btn" onclick="submitKeypadAnswer()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-extrabold text-xl py-3.5 rounded-2xl shadow-lg active:translate-y-0.5 transition">
+                ⭕ 決定する！
+            </button>
+        </div>
+    </div>
+
+    <!-- 大正解ポップアップモーダル -->
+    <div id="correct-modal" class="fixed inset-0 bg-slate-900/60 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-lg w-full p-8 shadow-2xl border-4 border-emerald-400 text-center animate-pop-in relative overflow-hidden">
+            <div class="w-24 h-24 rounded-full bg-rose-100 border-8 border-rose-500 flex items-center justify-center mx-auto mb-4 shadow-md">
+                <span class="text-5xl font-extrabold text-rose-500 leading-none">⭕</span>
+            </div>
+            <h2 class="text-3xl md:text-4xl font-extrabold text-emerald-600 tracking-wider mb-3">
+                大正解！！
+            </h2>
+            <div id="correct-modal-formula" class="inline-block bg-slate-100 border-2 border-slate-200 rounded-2xl px-5 py-2 text-xl md:text-2xl font-extrabold text-slate-800 mb-3">
+                V ＝ 2A × 30Ω ＝ 60V
+            </div>
+            <p id="correct-modal-explanation" class="text-sm md:text-base font-bold text-slate-600 mb-6 leading-relaxed bg-emerald-50 p-3 rounded-xl border border-emerald-200">
+                解説がここに入ります
+            </p>
+            <div class="flex justify-center space-x-3">
+                <button onclick="closeCorrectModal()" class="px-5 py-3 rounded-2xl font-extrabold text-base bg-slate-100 hover:bg-slate-200 text-slate-600 border border-slate-300 transition">
+                    画面を見る
+                </button>
+                <button id="correct-modal-next-btn" onclick="proceedAfterCorrect()" class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-lg py-3 px-6 rounded-2xl shadow-lg active:translate-y-0.5 transition">
+                    次の問題へすすむ ▶
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5問すべてクリアした時の大画面お祝いモーダル -->
+    <div id="level-clear-modal" class="fixed inset-0 bg-slate-900/75 backdrop-blur-sm z-50 hidden items-center justify-center p-4 overflow-hidden">
+        <div id="confetti-container" class="fixed inset-0 pointer-events-none overflow-hidden z-0"></div>
+
+        <div class="bg-gradient-to-b from-amber-50 via-white to-white rounded-3xl max-w-xl w-full p-8 shadow-2xl border-4 border-amber-400 text-center animate-pop-in relative z-10">
+            <div class="text-7xl mb-3 animate-float">🏆</div>
+            <div class="inline-block bg-amber-400 text-slate-900 font-extrabold text-sm px-4 py-1 rounded-full mb-2 shadow-xs">
+                ✨ CONGRATULATIONS ✨
+            </div>
+            <h2 id="clear-modal-title" class="text-2xl md:text-4xl font-extrabold text-slate-800 tracking-tight mb-3">
+                直列回路・電圧① 全5問クリア！！
+            </h2>
+            <p id="clear-modal-subtitle" class="text-base md:text-lg font-bold text-slate-600 mb-6">
+                合成抵抗ブロックを作って電圧を求める計算をマスターしたね！🎉
+            </p>
+
+            <div class="bg-amber-50/80 border-2 border-amber-200 rounded-2xl p-4 mb-6">
+                <div class="text-xs font-extrabold text-amber-800 mb-2">クリアした5問のスター</div>
+                <div class="flex justify-center gap-3 text-3xl">
+                    <span>🌟</span><span>🌟</span><span>🌟</span><span>🌟</span><span>🌟</span>
+                </div>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-center gap-3">
+                <button onclick="replayCurrentLevel()" class="px-6 py-3.5 rounded-2xl font-extrabold text-base bg-slate-100 hover:bg-slate-200 text-slate-700 border-2 border-slate-300 transition">
+                    🔄 もう一度全5問を解く
+                </button>
+                <button onclick="loadDiagramExample(); closeLevelClearModal();" class="flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-lg py-3.5 px-6 rounded-2xl shadow-lg active:translate-y-0.5 transition">
+                    📖 図の例題(15Ω・25Ω・0.1A)に挑む！
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 準備中お知らせトーストモーダル -->
+    <div id="coming-soon-modal" class="fixed inset-0 bg-slate-900/40 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
+        <div class="bg-white rounded-3xl max-w-md w-full p-6 shadow-xl border-4 border-slate-200 text-center animate-pop-in">
+            <div class="text-5xl mb-3">🛠️</div>
+            <h3 id="coming-soon-title" class="text-xl font-extrabold text-slate-800 mb-2">この問題セットは追加予定です</h3>
+            <p class="text-sm font-bold text-slate-600 mb-5 leading-relaxed">
+                今後、直列回路（電圧2種・電流3種・抵抗3種）および並列回路（電圧3種・電流3種・抵抗3種）の各5問を順次追加できます！
+            </p>
+            <button onclick="closeComingSoonModal()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-extrabold py-3 rounded-2xl shadow">
+                現在の問題に戻る
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // ==========================================
+        // 問題データベース（今後追加される全18種類×5問の拡張構造）
+        // ==========================================
+        const CIRCUIT_DB = {
+            series: {
+                V: {
+                    // 【今回実装】直列回路で電圧を求める問題①（添付画像の5問）
+                    1: [
+                        {
+                            id: "s-v-1-1",
+                            title: "直列回路：電源の電圧(V)①",
+                            text: "R₁の抵抗 ＝ 10Ω、R₂の抵抗 ＝ 20Ω、<br>全体の電流 ＝ 2A のときの電源の電圧Vは？",
+                            diagram: { r1: "10Ω", r2: "20Ω", i: "2A", v: "V" },
+                            initialBlocks: ["10", "20", "2"],
+                            combineTask: {
+                                inputs: ["10", "20"],
+                                op: "+",
+                                result: "30",
+                                label: "合成抵抗(Ω)"
+                            },
+                            expected: { V: "V", R: "30", I: "2" },
+                            mATrap: null,
+                            answer: 60,
+                            unit: "V",
+                            explanation: "合成抵抗 ＝ 10Ω ＋ 20Ω ＝ 30Ω。 V ＝ 2A × 30Ω ＝ 60V"
+                        },
+                        {
+                            id: "s-v-1-2",
+                            title: "直列回路：電源の電圧(V)①",
+                            text: "R₁の抵抗 ＝ 5Ω、R₂の抵抗 ＝ 15Ω、<br>全体の電流 ＝ 0.5A のときの電源の電圧Vは？",
+                            diagram: { r1: "5Ω", r2: "15Ω", i: "0.5A", v: "V" },
+                            initialBlocks: ["5", "15", "0.5"],
+                            combineTask: {
+                                inputs: ["5", "15"],
+                                op: "+",
+                                result: "20",
+                                label: "合成抵抗(Ω)"
+                            },
+                            expected: { V: "V", R: "20", I: "0.5" },
+                            mATrap: null,
+                            answer: 10,
+                            unit: "V",
+                            explanation: "合成抵抗 ＝ 5Ω ＋ 15Ω ＝ 20Ω。 V ＝ 0.5A × 20Ω ＝ 10V"
+                        },
+                        {
+                            id: "s-v-1-3",
+                            title: "直列回路：電源の電圧(V)①",
+                            text: "R₁の抵抗 ＝ 12Ω、R₂の抵抗 ＝ 8Ω、<br>全体の電流 ＝ 3A のときの電源の電圧Vは？",
+                            diagram: { r1: "12Ω", r2: "8Ω", i: "3A", v: "V" },
+                            initialBlocks: ["12", "8", "3"],
+                            combineTask: {
+                                inputs: ["12", "8"],
+                                op: "+",
+                                result: "20",
+                                label: "合成抵抗(Ω)"
+                            },
+                            expected: { V: "V", R: "20", I: "3" },
+                            mATrap: null,
+                            answer: 60,
+                            unit: "V",
+                            explanation: "合成抵抗 ＝ 12Ω ＋ 8Ω ＝ 20Ω。 V ＝ 3A × 20Ω ＝ 60V"
+                        },
+                        {
+                            id: "s-v-1-4",
+                            title: "直列回路：電源の電圧(V)①",
+                            text: "R₁の抵抗 ＝ 30Ω、R₂の抵抗 ＝ 20Ω、<br>全体の電流 ＝ 200mA のときの電源の電圧Vは？",
+                            diagram: { r1: "30Ω", r2: "20Ω", i: "200mA", v: "V" },
+                            initialBlocks: ["30", "20", "200", "0.2"],
+                            combineTask: {
+                                inputs: ["30", "20"],
+                                op: "+",
+                                result: "50",
+                                label: "合成抵抗(Ω)"
+                            },
+                            expected: { V: "V", R: "50", I: "0.2" },
+                            mATrap: "200",
+                            answer: 10,
+                            unit: "V",
+                            explanation: "200mA ＝ 0.2A。合成抵抗 ＝ 30Ω ＋ 20Ω ＝ 50Ω。 V ＝ 0.2A × 50Ω ＝ 10V"
+                        },
+                        {
+                            id: "s-v-1-5",
+                            title: "直列回路：電源の電圧(V)①",
+                            text: "R₁の抵抗 ＝ 45Ω、R₂の抵抗 ＝ 55Ω、<br>全体の電流 ＝ 500mA のときの電源の電圧Vは？",
+                            diagram: { r1: "45Ω", r2: "55Ω", i: "500mA", v: "V" },
+                            initialBlocks: ["45", "55", "500", "0.5"],
+                            combineTask: {
+                                inputs: ["45", "55"],
+                                op: "+",
+                                result: "100",
+                                label: "合成抵抗(Ω)"
+                            },
+                            expected: { V: "V", R: "100", I: "0.5" },
+                            mATrap: "500",
+                            answer: 50,
+                            unit: "V",
+                            explanation: "500mA ＝ 0.5A。合成抵抗 ＝ 45Ω ＋ 55Ω ＝ 100Ω。 V ＝ 0.5A × 100Ω ＝ 50V"
+                        }
+                    ],
+                    2: [], // 今後追加予定：直列・電圧②（5問）
+                    3: []  // 今後追加予定：直列・電圧③（5問）
+                },
+                I: { 1: [], 2: [], 3: [] }, // 今後追加予定：直列・電流①〜③（各5問）
+                R: { 1: [], 2: [], 3: [] }  // 今後追加予定：直列・抵抗①〜③（各5問）
+            },
+            parallel: {
+                V: { 1: [], 2: [], 3: [] }, // 今後追加予定：並列・電圧①〜③（各5問）
+                I: { 1: [], 2: [], 3: [] }, // 今後追加予定：並列・電流①〜③（各5問）
+                R: { 1: [], 2: [], 3: [] }  // 今後追加予定：並列・抵抗①〜③（各5問）
+            }
+        };
+
+        // 添付画像の左側に描かれている回路図そのものの例題データ（15Ω, 25Ω, 0.1A）
+        const DIAGRAM_EXAMPLE_QUESTION = {
+            id: "s-v-example",
+            title: "図の例題（15Ω・25Ω・0.1A）",
+            text: "【図の例題】R₁の抵抗 ＝ 15Ω、R₂の抵抗 ＝ 25Ω、<br>全体の電流 ＝ 0.1A のときの電源の電圧Vは？",
+            diagram: { r1: "15Ω", r2: "25Ω", i: "0.1A", v: "V" },
+            initialBlocks: ["15", "25", "0.1"],
+            combineTask: {
+                inputs: ["15", "25"],
+                op: "+",
+                result: "40",
+                label: "合成抵抗(Ω)"
+            },
+            expected: { V: "V", R: "40", I: "0.1" },
+            mATrap: null,
+            answer: 4,
+            unit: "V",
+            explanation: "合成抵抗 ＝ 15Ω ＋ 25Ω ＝ 40Ω。 V ＝ 0.1A × 40Ω ＝ 4V"
+        };
+
+        // ==========================================
+        // 状態管理変数
+        // ==========================================
+        let currentCircuit = "series";
+        let currentCategory = "V";
+        let currentPattern = 1;
+        let currentIndex = 0;
+        let isExampleMode = false;
+
+        let combineSlots = [null, null];     // 合成抵抗スロット [R1, R2]
+        let isCombinedSolved = false;        // 合成抵抗ブロックが生成済みか
+        let slots = { V: null, R: null, I: null }; // オームの法則サークルのスロット
+        let selectedBlockValue = null;       // 現在選択中のブロック値
+        let keypadMode = "final";            // "combine" (合成抵抗の計算) または "final" (最終答えの計算)
+        let keypadInput = "";                // テンキー入力値
+        let isSolved = false;                // 現在の問題をクリア済みか
+
+        // クリア状況の記録
+        let solvedStatus = {
+            "series-V-1": [false, false, false, false, false]
+        };
+
+        // 初期化
+        window.onload = function () {
+            loadQuestion();
+        };
+
+        // 現在の問題オブジェクトを取得
+        function getCurrentQuestion() {
+            if (isExampleMode) return DIAGRAM_EXAMPLE_QUESTION;
+            return CIRCUIT_DB[currentCircuit][currentCategory][currentPattern][currentIndex];
+        }
+
+        // ナビゲーション切り替え（直列/並列、V/I/R、パターン1〜3）
+        function selectCircuitType(type) {
+            if (type === "parallel") {
+                showComingSoonModal("並列回路の問題セット");
+                return;
+            }
+            isExampleMode = false;
+            currentCircuit = type;
+            loadQuestion();
+        }
+
+        function selectCategory(cat) {
+            if (cat !== "V") {
+                const label = cat === "I" ? "電流(I)を求める問題" : "抵抗(R)を求める問題";
+                showComingSoonModal(`直列回路：${label}`);
+                return;
+            }
+            isExampleMode = false;
+            currentCategory = cat;
+            loadQuestion();
+        }
+
+        function selectPattern(pat) {
+            const list = CIRCUIT_DB[currentCircuit][currentCategory][pat];
+            if (!list || list.length === 0) {
+                showComingSoonModal(`パターン${pat}の問題セット（5問）`);
+                return;
+            }
+            isExampleMode = false;
+            currentPattern = pat;
+            currentIndex = 0;
+            loadQuestion();
+        }
+
+        function loadDiagramExample() {
+            isExampleMode = true;
+            loadQuestion();
+        }
+
+        function showComingSoonModal(titleText) {
+            document.getElementById("coming-soon-title").textContent = `「${titleText}」は追加予定です`;
+            const modal = document.getElementById("coming-soon-modal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function closeComingSoonModal() {
+            const modal = document.getElementById("coming-soon-modal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+
+        // 前の問題・次の問題
+        function prevQuestion() {
+            if (isExampleMode) {
+                isExampleMode = false;
+                currentIndex = 0;
+                loadQuestion();
+                return;
+            }
+            const list = CIRCUIT_DB[currentCircuit][currentCategory][currentPattern];
+            currentIndex = (currentIndex - 1 + list.length) % list.length;
+            loadQuestion();
+        }
+
+        function nextQuestion() {
+            if (isExampleMode) {
+                isExampleMode = false;
+                currentIndex = 0;
+                loadQuestion();
+                return;
+            }
+            const list = CIRCUIT_DB[currentCircuit][currentCategory][currentPattern];
+            currentIndex = (currentIndex + 1) % list.length;
+            loadQuestion();
+        }
+
+        // やりなおし
+        function resetCurrentQuestion() {
+            combineSlots = [null, null];
+            isCombinedSolved = false;
+            slots = { V: null, R: null, I: null };
+            selectedBlockValue = null;
+            keypadInput = "";
+            isSolved = false;
+            renderAll();
+        }
+
+        // 問題の読み込み
+        function loadQuestion() {
+            combineSlots = [null, null];
+            isCombinedSolved = false;
+            slots = { V: null, R: null, I: null };
+            selectedBlockValue = null;
+            keypadInput = "";
+            isSolved = false;
+
+            const q = getCurrentQuestion();
+            const key = `${currentCircuit}-${currentCategory}-${currentPattern}`;
+            const statusArr = solvedStatus[key] || [];
+
+            if (isExampleMode) {
+                document.getElementById("question-counter").textContent = "図の例題";
+                document.getElementById("example-btn").className = "px-2.5 py-1 rounded-lg font-extrabold text-xs border-2 border-amber-500 bg-amber-400 text-slate-900 shadow-xs transition shrink-0";
+            } else {
+                const isCleared = statusArr[currentIndex];
+                document.getElementById("question-counter").textContent = `第 ${currentIndex + 1} / 5 問${isCleared ? ' ⭐' : ''}`;
+                document.getElementById("example-btn").className = "px-2.5 py-1 rounded-lg font-extrabold text-xs border-2 border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 transition shrink-0";
+            }
+
+            document.getElementById("level-badge").textContent = q.title;
+            document.getElementById("question-text").innerHTML = q.text;
+
+            // クリア進捗バッジ更新
+            const clearedCount = statusArr.filter(Boolean).length;
+            const progBadge = document.getElementById("clear-progress-badge");
+            if (progBadge) {
+                progBadge.textContent = `⭐ ${clearedCount} / 5 クリア`;
+            }
+
+            renderAll();
+        }
+
+        // 画面全体の再描画
+        function renderAll() {
+            renderCircuitDiagram();
+            renderBlocks();
+            renderCombineWorkbench();
+            renderSlots();
+            renderFormulaAndFeedback();
+            updateGuideBanner();
+        }
+
+        // 左上の回路図SVGを現在の問題・進行状況に合わせて更新
+        function renderCircuitDiagram() {
+            const q = getCurrentQuestion();
+            document.getElementById("svg-r1-val").textContent = q.diagram.r1;
+            document.getElementById("svg-r2-val").textContent = q.diagram.r2;
+            document.getElementById("svg-i-val").textContent = q.diagram.i;
+            document.getElementById("svg-v-label").textContent = isSolved ? `V=${q.answer}V` : "V";
+
+            const combGroup = document.getElementById("svg-combined-group");
+            const combText = document.getElementById("svg-combined-text");
+            if (isCombinedSolved) {
+                combGroup.classList.remove("hidden");
+                combText.textContent = `合成抵抗 ${q.combineTask.result}Ω`;
+            } else {
+                combGroup.classList.add("hidden");
+            }
+        }
+
+        // 数字ブロック＆記号ブロックの描画
+        function renderBlocks() {
+            const q = getCurrentQuestion();
+            const numContainer = document.getElementById("number-blocks-container");
+            const symContainer = document.getElementById("symbol-blocks-container");
+
+            numContainer.innerHTML = "";
+            symContainer.innerHTML = "";
+
+            // オームの法則サークルで使用中の値
+            const usedInOhm = Object.values(slots).filter(v => v !== null);
+            // 合成スロットで使用中の値（まだ合成完了していないとき）
+            const usedInCombine = !isCombinedSolved ? combineSlots.filter(v => v !== null) : [];
+
+            // 初期数字ブロックの描画
+            q.initialBlocks.forEach(numStr => {
+                // R1, R2のブロックは合成が完了したら「合成済み」として薄く表示
+                const isPartOfCombined = isCombinedSolved && q.combineTask.inputs.includes(numStr);
+                const isUsed = usedInOhm.includes(numStr) || usedInCombine.includes(numStr) || isPartOfCombined;
+                const isSelected = selectedBlockValue === numStr;
+
+                const btn = document.createElement("button");
+                btn.draggable = !isUsed;
+                btn.ondragstart = (e) => handleDragStart(e, numStr);
+                btn.onclick = () => selectBlock(numStr);
+
+                if (isUsed) {
+                    btn.className = "px-3.5 h-12 rounded-xl border-2 border-dashed border-slate-300 bg-slate-100 text-slate-300 font-extrabold text-xl flex items-center justify-center cursor-not-allowed";
+                    btn.disabled = true;
+                } else {
+                    btn.className = `block-btn px-3.5 h-12 rounded-xl border-3 border-slate-400 bg-white text-slate-800 font-extrabold text-xl lg:text-2xl flex items-center justify-center cursor-pointer ${isSelected ? 'selected' : 'hover:bg-slate-50'}`;
+                }
+                btn.textContent = numStr;
+                numContainer.appendChild(btn);
+            });
+
+            // 合成抵抗ブロックが完成している場合は、新しいブロックとして追加表示！
+            if (isCombinedSolved) {
+                const combVal = q.combineTask.result;
+                const isUsed = usedInOhm.includes(combVal);
+                const isSelected = selectedBlockValue === combVal;
+
+                const btn = document.createElement("button");
+                btn.draggable = !isUsed;
+                btn.ondragstart = (e) => handleDragStart(e, combVal);
+                btn.onclick = () => selectBlock(combVal);
+
+                if (isUsed) {
+                    btn.className = "px-3.5 h-12 rounded-xl border-2 border-dashed border-emerald-300 bg-emerald-50/40 text-emerald-300 font-extrabold text-xl flex flex-col items-center justify-center cursor-not-allowed";
+                    btn.disabled = true;
+                } else {
+                    btn.className = `block-btn block-combined px-3.5 h-12 rounded-xl border-3 border-emerald-600 bg-emerald-100 text-emerald-950 font-extrabold flex flex-col items-center justify-center cursor-pointer ${isSelected ? 'selected' : 'hover:bg-emerald-200/70'}`;
+                }
+                btn.innerHTML = `<span class="text-xl lg:text-2xl leading-none">${combVal}</span><span class="text-[9px] font-extrabold text-emerald-700 mt-0.5">✨合成抵抗</span>`;
+                numContainer.appendChild(btn);
+            }
+
+            // 記号ブロック (V, I, R)
+            const symbols = [
+                { sym: "V", label: "電圧", color: "border-rose-400 text-rose-600 bg-rose-50/50" },
+                { sym: "I", label: "電流", color: "border-blue-400 text-blue-600 bg-blue-50/50" },
+                { sym: "R", label: "抵抗", color: "border-emerald-400 text-emerald-600 bg-emerald-50/50" }
+            ];
+
+            symbols.forEach(item => {
+                const isUsed = usedInOhm.includes(item.sym);
+                const isSelected = selectedBlockValue === item.sym;
+
+                const btn = document.createElement("button");
+                btn.draggable = !isUsed;
+                btn.ondragstart = (e) => handleDragStart(e, item.sym);
+                btn.onclick = () => selectBlock(item.sym);
+
+                if (isUsed) {
+                    btn.className = "w-14 h-12 rounded-xl border-2 border-dashed border-slate-300 bg-slate-100 text-slate-300 font-extrabold text-xl flex flex-col items-center justify-center cursor-not-allowed";
+                    btn.disabled = true;
+                } else {
+                    btn.className = `block-btn w-14 h-12 rounded-xl border-3 ${item.color} font-extrabold flex flex-col items-center justify-center cursor-pointer ${isSelected ? 'selected' : ''}`;
+                }
+                btn.innerHTML = `<span class="text-xl leading-none">${item.sym}</span><span class="text-[9px] font-bold opacity-75 mt-0.5">${item.label}</span>`;
+                symContainer.appendChild(btn);
+            });
+        }
+
+        // 左下：合成抵抗を作るワークベンチの描画
+        function renderCombineWorkbench() {
+            const q = getCurrentQuestion();
+            const statusEl = document.getElementById("combine-status");
+            const resultArea = document.getElementById("comb-result-area");
+
+            [0, 1].forEach(idx => {
+                const slotEl = document.getElementById(`comb-slot-${idx}`);
+                const val = combineSlots[idx];
+                const label = idx === 0 ? "R₁ [Ω]" : "R₂ [Ω]";
+                const highlight = (selectedBlockValue !== null && val === null && !isCombinedSolved) ? "slot-active border-blue-500" : "";
+
+                if (val === null) {
+                    slotEl.className = `w-20 h-13 py-1 rounded-xl border-3 border-dashed border-emerald-400 bg-white ${highlight} flex flex-col items-center justify-center cursor-pointer transition hover:bg-emerald-50`;
+                    slotEl.innerHTML = `<span class="text-xs font-extrabold text-emerald-400">${label}</span>`;
+                } else {
+                    slotEl.className = `w-20 h-13 py-1 rounded-xl border-3 border-solid border-emerald-600 bg-emerald-100 text-emerald-950 flex flex-col items-center justify-center cursor-pointer transition shadow-xs`;
+                    slotEl.innerHTML = `
+                        <span class="text-xl font-extrabold leading-none">${val}</span>
+                        ${!isCombinedSolved ? '<span class="text-[9px] font-bold text-emerald-700">外す</span>' : ''}
+                    `;
+                }
+            });
+
+            // 2つ埋まっているか判定
+            const bothFilled = combineSlots[0] !== null && combineSlots[1] !== null;
+
+            if (isCombinedSolved) {
+                statusEl.innerHTML = `<span class="text-emerald-800 font-extrabold">✅ 合成抵抗 ${q.combineTask.result}Ω が完成！</span>`;
+                resultArea.innerHTML = `
+                    <div class="px-3 py-1.5 rounded-xl border-3 border-emerald-600 bg-emerald-600 text-white font-extrabold text-xl flex items-center space-x-1 shadow-xs">
+                        <span>${q.combineTask.result}</span>
+                        <span class="text-xs">Ω</span>
+                    </div>
+                `;
+            } else if (!bothFilled) {
+                statusEl.textContent = "R₁ と R₂ のブロックを入れよう";
+                resultArea.innerHTML = `
+                    <div class="w-24 h-13 rounded-xl border-2 border-dashed border-emerald-300 bg-white/60 flex items-center justify-center text-xs font-bold text-emerald-400">
+                        合成抵抗
+                    </div>
+                `;
+            } else {
+                // 正しい2つの抵抗ブロックが入っているかチェック（順不同OK）
+                const expectedInputs = [...q.combineTask.inputs].sort();
+                const currentInputs = [...combineSlots].sort();
+                const isPairCorrect = expectedInputs[0] === currentInputs[0] && expectedInputs[1] === currentInputs[1];
+
+                if (isPairCorrect) {
+                    statusEl.innerHTML = `<span class="text-blue-700 font-extrabold animate-pulse">👉 足し算してブロックを作ろう！</span>`;
+                    resultArea.innerHTML = `
+                        <button onclick="openCombineKeypad()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs lg:text-sm px-3 py-2.5 rounded-xl shadow-md flex items-center space-x-1 animate-bounce cursor-pointer">
+                            <span>🧮 計算して合体！</span>
+                        </button>
+                    `;
+                } else {
+                    statusEl.innerHTML = `<span class="text-rose-600 font-extrabold">⚠️ R₁ と R₂ の抵抗(Ω)を選ぼう！</span>`;
+                    resultArea.innerHTML = `
+                        <div class="px-2.5 py-1.5 rounded-xl bg-rose-100 border border-rose-300 text-rose-700 font-bold text-xs">
+                            ブロックが違います
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // 右上のT字サークルの3つのスロットを描画
+        function renderSlots() {
+            const slotMeta = {
+                V: { title: "V", sub: "電圧 [V]", emptyBorder: "border-rose-300 bg-rose-50/70 text-rose-300", filledClass: "border-rose-500 bg-rose-50 text-rose-900 shadow-md" },
+                R: { title: "R", sub: "全体の抵抗[Ω]", emptyBorder: "border-emerald-300 bg-emerald-50/70 text-emerald-300", filledClass: "border-emerald-500 bg-emerald-50 text-emerald-900 shadow-md" },
+                I: { title: "I", sub: "全体の電流[A]", emptyBorder: "border-blue-300 bg-blue-50/70 text-blue-300", filledClass: "border-blue-500 bg-blue-50 text-blue-900 shadow-md" }
+            };
+
+            ["V", "R", "I"].forEach(key => {
+                const el = document.getElementById(`slot-${key}`);
+                const val = slots[key];
+                const meta = slotMeta[key];
+
+                const basePos = key === "V"
+                    ? "absolute top-[6%] left-1/2 -translate-x-1/2 w-32 h-20"
+                    : key === "R"
+                        ? "absolute bottom-[8%] left-[7%] w-24 h-20"
+                        : "absolute bottom-[8%] right-[7%] w-24 h-20";
+
+                const highlight = (selectedBlockValue !== null && val === null) ? "slot-active border-blue-500" : "";
+
+                if (val === null) {
+                    el.className = `${basePos} rounded-2xl border-4 border-dashed ${meta.emptyBorder} ${highlight} flex flex-col items-center justify-center cursor-pointer transition-all`;
+                    el.innerHTML = `
+                        <span class="text-3xl font-extrabold leading-none select-none">${meta.title}</span>
+                        <span class="text-[10px] font-bold mt-1 opacity-80 select-none">${meta.sub}</span>
+                    `;
+                } else {
+                    el.className = `${basePos} rounded-2xl border-4 border-solid ${meta.filledClass} flex flex-col items-center justify-center cursor-pointer transition-all transform scale-105`;
+                    el.innerHTML = `
+                        <span class="text-[10px] font-bold opacity-60 leading-none mb-0.5">${meta.sub}</span>
+                        <span class="text-2xl md:text-3xl font-extrabold leading-none">${val}</span>
+                        <span class="text-[9px] font-bold text-slate-400 mt-0.5">タップで外す</span>
+                    `;
+                }
+            });
+        }
+
+        // ブロックをタップして選択
+        function selectBlock(val) {
+            if (isSolved) return;
+            selectedBlockValue = (selectedBlockValue === val) ? null : val;
+            renderAll();
+        }
+
+        // 合成スロットをタップした時の処理
+        function handleCombineSlotClick(idx) {
+            if (isSolved || isCombinedSolved) return;
+
+            if (selectedBlockValue !== null) {
+                // 記号ブロック(V,I,R)は合成スロットに入れられないようにする
+                if (["V", "I", "R"].includes(selectedBlockValue)) return;
+
+                // 他のスロットに同じ値があれば外す
+                if (combineSlots[1 - idx] === selectedBlockValue) {
+                    combineSlots[1 - idx] = null;
+                }
+                ["V", "R", "I"].forEach(k => {
+                    if (slots[k] === selectedBlockValue) slots[k] = null;
+                });
+
+                combineSlots[idx] = selectedBlockValue;
+                selectedBlockValue = null;
+                renderAll();
+            } else if (combineSlots[idx] !== null) {
+                combineSlots[idx] = null;
+                renderAll();
+            }
+        }
+
+        function handleCombineDrop(e, idx) {
+            e.preventDefault();
+            if (isSolved || isCombinedSolved) return;
+            const val = e.dataTransfer.getData("text/plain") || selectedBlockValue;
+            if (!val || ["V", "I", "R"].includes(val)) return;
+
+            if (combineSlots[1 - idx] === val) combineSlots[1 - idx] = null;
+            ["V", "R", "I"].forEach(k => {
+                if (slots[k] === val) slots[k] = null;
+            });
+
+            combineSlots[idx] = val;
+            selectedBlockValue = null;
+            renderAll();
+        }
+
+        // オームの法則サークルのスロットをタップした時の処理
+        function handleSlotClick(slotKey) {
+            if (isSolved) return;
+
+            if (selectedBlockValue !== null) {
+                ["V", "R", "I"].forEach(k => {
+                    if (slots[k] === selectedBlockValue) slots[k] = null;
+                });
+                if (!isCombinedSolved) {
+                    [0, 1].forEach(i => {
+                        if (combineSlots[i] === selectedBlockValue) combineSlots[i] = null;
+                    });
+                }
+                slots[slotKey] = selectedBlockValue;
+                selectedBlockValue = null;
+                renderAll();
+            } else if (slots[slotKey] !== null) {
+                slots[slotKey] = null;
+                renderAll();
+            }
+        }
+
+        // ドラッグ＆ドロップ共通
+        function handleDragStart(e, val) {
+            selectedBlockValue = val;
+            e.dataTransfer.setData("text/plain", val);
+        }
+
+        function allowDrop(e) {
+            e.preventDefault();
+        }
+
+        function handleDrop(e, slotKey) {
+            e.preventDefault();
+            if (isSolved) return;
+            const val = e.dataTransfer.getData("text/plain") || selectedBlockValue;
+            if (!val) return;
+
+            ["V", "R", "I"].forEach(k => {
+                if (slots[k] === val) slots[k] = null;
+            });
+            if (!isCombinedSolved) {
+                [0, 1].forEach(i => {
+                    if (combineSlots[i] === val) combineSlots[i] = null;
+                });
+            }
+            slots[slotKey] = val;
+            selectedBlockValue = null;
+            renderAll();
+        }
+
+        // ガイドバナーの更新
+        function updateGuideBanner() {
+            const banner = document.getElementById("guide-banner");
+            const text = document.getElementById("guide-text");
+            const q = getCurrentQuestion();
+
+            if (selectedBlockValue !== null) {
+                banner.className = "bg-indigo-600 border-2 border-indigo-700 text-white px-3 py-1.5 rounded-xl font-bold text-xs lg:text-sm mb-2.5 flex items-center justify-between shadow-xs";
+                if (!isCombinedSolved && q.combineTask.inputs.includes(selectedBlockValue)) {
+                    text.innerHTML = `「 <strong>${selectedBlockValue}</strong> 」を選択中！ 下の緑色の「組み合わせ（R₁＋R₂）」に入れよう 👇`;
+                } else {
+                    text.innerHTML = `「 <strong>${selectedBlockValue}</strong> 」を選択中！ 右の丸い図の当てはまる場所をタップしよう 👉`;
+                }
+                return;
+            }
+
+            banner.className = "bg-blue-50 border-2 border-blue-200 text-blue-800 px-3 py-1.5 rounded-xl font-bold text-xs lg:text-sm mb-2.5 flex items-center justify-between";
+            if (!isCombinedSolved) {
+                text.innerHTML = "① まずは <strong>R₁</strong> と <strong>R₂</strong> の数字ブロックを下の緑の枠に入れて「合成抵抗」を作ろう！";
+            } else {
+                const filledCount = Object.values(slots).filter(v => v !== null).length;
+                if (filledCount < 3) {
+                    text.innerHTML = `② 作った「<strong>${q.combineTask.result}</strong>(合成抵抗)」と「電流」「V」を右の丸い図に入れよう！（あと ${3 - filledCount} 個）`;
+                } else {
+                    text.textContent = "③ 3か所すべて埋まりました！ 右下の数式を見て計算しよう！";
+                }
+            }
+        }
+
+        // 右下の数式ボックスと判定フィードバックの描画
+        function renderFormulaAndFeedback() {
+            const q = getCurrentQuestion();
+            const formulaArea = document.getElementById("formula-box-area");
+            const feedbackArea = document.getElementById("feedback-area");
+            const statusBadge = document.getElementById("formula-status-badge");
+
+            const vVal = slots.V;
+            const rVal = slots.R;
+            const iVal = slots.I;
+            const isAllFilled = (vVal !== null && rVal !== null && iVal !== null);
+
+            // ステップ1の合成抵抗式バッジ
+            const step1HTML = isCombinedSolved
+                ? `<div class="text-xs font-extrabold text-emerald-800 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-lg">
+                       合成抵抗 ＝ ${q.combineTask.inputs[0]}Ω ＋ ${q.combineTask.inputs[1]}Ω ＝ <strong>${q.combineTask.result}Ω</strong>
+                   </div>`
+                : `<div class="text-xs font-bold text-slate-400 bg-slate-50 border border-slate-200 px-3 py-1 rounded-lg">
+                       合成抵抗 ＝ ？Ω ＋ ？Ω ＝ ？Ω
+                   </div>`;
+
+            const symbolsList = ["V", "I", "R"];
+            const symbolSlots = ["V", "R", "I"].filter(k => symbolsList.includes(slots[k]));
+
+            if (!isAllFilled) {
+                statusBadge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-slate-100 text-slate-500";
+                statusBadge.textContent = "図を3つ埋めよう";
+
+                let lhs = "V", rhs1 = rVal || "？", op = "×", rhs2 = iVal || "？";
+                if (symbolSlots.length === 1) {
+                    const sKey = symbolSlots[0];
+                    lhs = slots[sKey];
+                    if (sKey === "V") { op = "×"; rhs1 = rVal || "？"; rhs2 = iVal || "？"; }
+                    else if (sKey === "I") { op = "÷"; rhs1 = vVal || "？"; rhs2 = rVal || "？"; }
+                    else if (sKey === "R") { op = "÷"; rhs1 = vVal || "？"; rhs2 = iVal || "？"; }
+                }
+
+                formulaArea.innerHTML = step1HTML + createBoxedEquationHTML(lhs, rhs1, op, rhs2, false);
+
+                // もし合成前の単独の抵抗(R1やR2)を直接Rスロットに入れていた場合の親切なヒント
+                if (rVal !== null && q.combineTask.inputs.includes(rVal)) {
+                    feedbackArea.innerHTML = `
+                        <div class="w-full bg-amber-50 border-2 border-amber-300 text-amber-900 px-3 py-1.5 rounded-xl font-bold text-xs text-center">
+                            💡 直列回路では <strong>${rVal}Ω だけ</strong>ではなく、2つを足した<strong>「合成抵抗」</strong>を作ってRに入れよう！
+                        </div>
+                    `;
+                } else {
+                    feedbackArea.innerHTML = `<p class="text-xs font-bold text-slate-400">図の「V」「R」「I」の3か所にブロックを入れてね</p>`;
+                }
+                return;
+            }
+
+            // 記号が1つだけかチェック
+            if (symbolSlots.length !== 1) {
+                statusBadge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-700";
+                statusBadge.textContent = "ブロックを見直そう";
+                formulaArea.innerHTML = step1HTML + `<div class="text-amber-700 font-extrabold text-xs text-center px-3 py-2 bg-amber-50 rounded-xl border border-amber-200">
+                    ⚠️ 「わかっている数字 <strong>2つ</strong>」と「求めたい記号 <strong>1つ</strong>」を入れよう！
+                </div>`;
+                feedbackArea.innerHTML = "";
+                return;
+            }
+
+            const targetKey = symbolSlots[0];
+            const symStr = slots[targetKey];
+            let rhs1 = "", op = "", rhs2 = "";
+
+            if (targetKey === "V") { op = "×"; rhs1 = rVal; rhs2 = iVal; }
+            else if (targetKey === "I") { op = "÷"; rhs1 = vVal; rhs2 = rVal; }
+            else if (targetKey === "R") { op = "÷"; rhs1 = vVal; rhs2 = iVal; }
+
+            const isCorrectPlacement = (slots.V === q.expected.V && slots.R === q.expected.R && slots.I === q.expected.I);
+
+            formulaArea.innerHTML = step1HTML + createBoxedEquationHTML(symStr, rhs1, op, rhs2, isCorrectPlacement);
+
+            // 合成前の抵抗を入れてしまっている場合
+            if (!isCorrectPlacement && q.combineTask.inputs.includes(rVal)) {
+                statusBadge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800";
+                statusBadge.textContent = "合成抵抗を使おう！";
+                feedbackArea.innerHTML = `
+                    <div class="w-full bg-amber-50 border-2 border-amber-300 text-amber-900 px-3 py-1.5 rounded-xl font-bold text-xs text-center">
+                        💡 Rには ${rVal}Ω ではなく、R₁とR₂を合わせた<strong>「合成抵抗（${q.combineTask.result}Ω）」</strong>のブロックを入れよう！
+                    </div>
+                `;
+                return;
+            }
+
+            // mAの単位変換トラップ
+            if (!isCorrectPlacement && q.mATrap && Object.values(slots).includes(q.mATrap)) {
+                statusBadge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-100 text-amber-800";
+                statusBadge.textContent = "単位に注意！";
+                feedbackArea.innerHTML = `
+                    <div class="w-full bg-amber-50 border-2 border-amber-300 text-amber-900 px-3 py-1.5 rounded-xl font-bold text-xs text-center">
+                        💡 <strong>おしい！</strong> 計算では電流は <strong>アンペア(A)</strong> を使います。<br>
+                        ${q.mATrap}mA ではなく、Aに直した「<strong>${q.expected.I}</strong>」ブロックを使おう！
+                    </div>
+                `;
+                return;
+            }
+
+            if (!isCorrectPlacement) {
+                statusBadge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-100 text-rose-700";
+                statusBadge.textContent = "配置を見直そう";
+                feedbackArea.innerHTML = `
+                    <div class="w-full bg-rose-50 border-2 border-rose-200 text-rose-800 px-3 py-1.5 rounded-xl font-bold text-xs text-center">
+                        🤔 入れる場所か選ぶブロックが少しちがうみたい。もう一度確かめてみよう！
+                    </div>
+                `;
+                return;
+            }
+
+            // 正しく配置できた場合
+            statusBadge.className = "text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-100 text-emerald-800";
+            statusBadge.textContent = "✨ 数式が完成！";
+
+            if (!isSolved) {
+                feedbackArea.innerHTML = `
+                    <button onclick="openFinalKeypad('${symStr}', '${rhs1}', '${op}', '${rhs2}')"
+                            class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-base py-2 px-4 rounded-xl shadow-md flex items-center justify-center space-x-2 animate-pulse cursor-pointer">
+                        <span>🧮 式がバッチリできた！ 計算して答えを出そう</span>
+                    </button>
+                `;
+            } else {
+                feedbackArea.innerHTML = `
+                    <div class="w-full flex items-center justify-between bg-emerald-50 border-2 border-emerald-400 rounded-xl px-3 py-1.5">
+                        <div class="text-xs font-extrabold text-emerald-900">
+                            🎉 ${q.explanation}
+                        </div>
+                        <button onclick="nextQuestion()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-xs px-3 py-1.5 rounded-lg shadow shrink-0 ml-2">
+                            次へ ▶
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // ボックス式のHTML生成
+        function createBoxedEquationHTML(lhs, rhs1, op, rhs2, isComplete) {
+            const q = getCurrentQuestion();
+            const boxStyle = isComplete
+                ? "border-3 border-blue-600 bg-blue-50 text-slate-900 shadow-xs"
+                : "border-3 border-slate-300 bg-slate-50 text-slate-500";
+
+            let ansPart = "";
+            if (isSolved) {
+                ansPart = `
+                    <span class="text-xl font-extrabold text-slate-500 mx-0.5">＝</span>
+                    <div class="px-2.5 py-1 rounded-xl border-3 border-rose-500 bg-rose-50 text-rose-600 font-extrabold text-xl md:text-2xl shadow-xs">
+                        ${q.answer}${q.unit}
+                    </div>
+                `;
+            }
+
+            return `
+                <div class="flex items-center justify-center flex-wrap gap-1">
+                    <div class="min-w-[46px] h-11 px-2.5 rounded-xl ${boxStyle} flex items-center justify-center font-extrabold text-xl md:text-2xl">
+                        ${lhs}
+                    </div>
+                    <span class="text-xl font-extrabold text-slate-700 mx-0.5">＝</span>
+                    <div class="min-w-[46px] h-11 px-2.5 rounded-xl ${boxStyle} flex items-center justify-center font-extrabold text-xl md:text-2xl">
+                        ${rhs1}
+                    </div>
+                    <span class="text-xl font-extrabold text-slate-700 mx-0.5">${op}</span>
+                    <div class="min-w-[46px] h-11 px-2.5 rounded-xl ${boxStyle} flex items-center justify-center font-extrabold text-xl md:text-2xl">
+                        ${rhs2}
+                    </div>
+                    ${ansPart}
+                </div>
+            `;
+        }
+
+        // ==========================================
+        // テンキーモーダル処理（①合成抵抗の計算 ＆ ②最終答えの計算）
+        // ==========================================
+        function openCombineKeypad() {
+            const q = getCurrentQuestion();
+            keypadMode = "combine";
+            keypadInput = "";
+
+            document.getElementById("modal-title").textContent = "ステップ1：全体の抵抗（合成抵抗）を計算しよう！";
+            document.getElementById("modal-formula-preview").textContent = `合成抵抗 ＝ ${combineSlots[0]}Ω ＋ ${combineSlots[1]}Ω`;
+            document.getElementById("modal-target-symbol").textContent = "合成抵抗：";
+            document.getElementById("modal-unit").textContent = "Ω";
+            document.getElementById("keypad-display").textContent = "";
+            document.getElementById("modal-hint-message").classList.add("hidden");
+
+            const modal = document.getElementById("keypad-modal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function openFinalKeypad(sym, rhs1, op, rhs2) {
+            const q = getCurrentQuestion();
+            keypadMode = "final";
+            keypadInput = "";
+
+            document.getElementById("modal-title").textContent = "ステップ2：式を計算して電源の電圧Vを出そう！";
+            document.getElementById("modal-formula-preview").textContent = `${sym} ＝ ${rhs1} ${op} ${rhs2}`;
+            document.getElementById("modal-target-symbol").textContent = "答え：";
+            document.getElementById("modal-unit").textContent = q.unit;
+            document.getElementById("keypad-display").textContent = "";
+            document.getElementById("modal-hint-message").classList.add("hidden");
+
+            const modal = document.getElementById("keypad-modal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function closeKeypad() {
+            const modal = document.getElementById("keypad-modal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+
+        function pressKey(key) {
+            if (key === "BS") {
+                keypadInput = keypadInput.slice(0, -1);
+            } else if (key === ".") {
+                if (!keypadInput.includes(".")) {
+                    keypadInput = keypadInput === "" ? "0." : keypadInput + ".";
+                }
+            } else {
+                if (keypadInput.length < 6) {
+                    keypadInput += key;
+                }
+            }
+            document.getElementById("keypad-display").textContent = keypadInput;
+        }
+
+        function submitKeypadAnswer() {
+            const q = getCurrentQuestion();
+            const numVal = parseFloat(keypadInput);
+            if (isNaN(numVal)) return;
+
+            if (keypadMode === "combine") {
+                const expectedComb = parseFloat(q.combineTask.result);
+                if (Math.abs(numVal - expectedComb) < 0.0001) {
+                    isCombinedSolved = true;
+                    // 完成した合成抵抗ブロックを自動的に選択状態にして、すぐ右の図に入れやすくする
+                    selectedBlockValue = q.combineTask.result;
+                    closeKeypad();
+                    renderAll();
+                } else {
+                    flashKeypadError();
+                }
+            } else {
+                if (Math.abs(numVal - q.answer) < 0.0001) {
+                    isSolved = true;
+                    if (!isExampleMode) {
+                        const key = `${currentCircuit}-${currentCategory}-${currentPattern}`;
+                        solvedStatus[key][currentIndex] = true;
+                    }
+                    closeKeypad();
+                    loadQuestionStateAfterSolve();
+                    showCorrectModal();
+                } else {
+                    flashKeypadError();
+                }
+            }
+        }
+
+        function flashKeypadError() {
+            const display = document.getElementById("keypad-display");
+            display.classList.remove("bg-blue-50", "border-blue-400");
+            display.classList.add("bg-rose-100", "border-rose-500", "text-rose-700");
+            setTimeout(() => {
+                display.classList.remove("bg-rose-100", "border-rose-500", "text-rose-700");
+                display.classList.add("bg-blue-50", "border-blue-400");
+            }, 600);
+        }
+
+        function loadQuestionStateAfterSolve() {
+            const key = `${currentCircuit}-${currentCategory}-${currentPattern}`;
+            const statusArr = solvedStatus[key] || [];
+            if (!isExampleMode) {
+                document.getElementById("question-counter").textContent = `第 ${currentIndex + 1} / 5 問 ⭐`;
+                const clearedCount = statusArr.filter(Boolean).length;
+                const progBadge = document.getElementById("clear-progress-badge");
+                if (progBadge) {
+                    progBadge.textContent = `⭐ ${clearedCount} / 5 クリア`;
+                }
+            }
+            renderAll();
+        }
+
+        // 大正解モーダル表示
+        function showCorrectModal() {
+            const q = getCurrentQuestion();
+            document.getElementById("correct-modal-formula").textContent = `V ＝ ${q.expected.I}A × ${q.expected.R}Ω ＝ ${q.answer}V`;
+            document.getElementById("correct-modal-explanation").textContent = q.explanation;
+
+            const key = `${currentCircuit}-${currentCategory}-${currentPattern}`;
+            const allCleared = !isExampleMode && solvedStatus[key].every(Boolean);
+            const nextBtn = document.getElementById("correct-modal-next-btn");
+
+            if (allCleared) {
+                nextBtn.innerHTML = "🏆 全5問クリア結果を見る！ ▶";
+                nextBtn.className = "flex-1 bg-amber-500 hover:bg-amber-600 text-slate-900 font-extrabold text-lg py-3 px-6 rounded-2xl shadow-lg active:translate-y-0.5 transition";
+            } else {
+                nextBtn.innerHTML = "次の問題へすすむ ▶";
+                nextBtn.className = "flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-extrabold text-lg py-3 px-6 rounded-2xl shadow-lg active:translate-y-0.5 transition";
+            }
+
+            const modal = document.getElementById("correct-modal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+        }
+
+        function closeCorrectModal() {
+            const modal = document.getElementById("correct-modal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+
+        function proceedAfterCorrect() {
+            closeCorrectModal();
+            if (isExampleMode) {
+                isExampleMode = false;
+                currentIndex = 0;
+                loadQuestion();
+                return;
+            }
+
+            const key = `${currentCircuit}-${currentCategory}-${currentPattern}`;
+            const statusArr = solvedStatus[key];
+            if (statusArr.every(Boolean)) {
+                showLevelClearModal();
+            } else {
+                for (let step = 1; step <= statusArr.length; step++) {
+                    const nextIdx = (currentIndex + step) % statusArr.length;
+                    if (!statusArr[nextIdx]) {
+                        currentIndex = nextIdx;
+                        loadQuestion();
+                        return;
+                    }
+                }
+                nextQuestion();
+            }
+        }
+
+        // 全5問クリアモーダル
+        function showLevelClearModal() {
+            const modal = document.getElementById("level-clear-modal");
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+            launchConfetti();
+        }
+
+        function closeLevelClearModal() {
+            const modal = document.getElementById("level-clear-modal");
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+
+        function replayCurrentLevel() {
+            const key = `${currentCircuit}-${currentCategory}-${currentPattern}`;
+            solvedStatus[key] = [false, false, false, false, false];
+            closeLevelClearModal();
+            currentIndex = 0;
+            loadQuestion();
+        }
+
+        // 紙吹雪エフェクト
+        function launchConfetti() {
+            const container = document.getElementById("confetti-container");
+            container.innerHTML = "";
+            const colors = ["#f43f5e", "#3b82f6", "#10b981", "#f59e0b", "#a855f7", "#ec4899"];
+
+            for (let i = 0; i < 55; i++) {
+                const piece = document.createElement("div");
+                piece.className = "confetti-piece";
+                piece.style.left = `${Math.random() * 100}%`;
+                piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.animationDuration = `${2.2 + Math.random() * 2.3}s`;
+                piece.style.animationDelay = `${Math.random() * 0.8}s`;
+                container.appendChild(piece);
+            }
+        }
+    </script>
+</body>
+</html>
