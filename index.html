@@ -159,6 +159,14 @@
         .grand-master-glow {
             animation: shine-pulse 2s infinite ease-in-out;
         }
+
+        /* 枠線・高さユーティリティの確実なフォールバック */
+        .border-3 {
+            border-width: 3px;
+        }
+        .h-13 {
+            height: 3.25rem;
+        }
     </style>
 </head>
 <body class="bg-slate-100 text-slate-800 h-screen w-screen flex flex-col select-none">
@@ -697,26 +705,26 @@
             </div>
         </div>
     </div>
-
-    <!-- 総合問題（チャレンジモード）コース選択モーダル -->
-    <div id="challenge-select-modal" class="fixed inset-0 bg-slate-900/65 backdrop-blur-xs z-50 hidden items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-2xl border-4 border-amber-400 animate-pop-in relative overflow-hidden max-h-[94vh] overflow-y-auto">
-            <div class="flex justify-between items-start mb-3">
-                <div class="flex items-center gap-2.5">
-                    <span class="text-4xl">🔥</span>
-                    <div>
-                        <span class="inline-block bg-amber-100 text-amber-800 font-extrabold text-[11px] px-2.5 py-0.5 rounded-full border border-amber-300 mb-0.5">
-                            直列⇔並列が交互に出題！ V・I・Rの連続なし！
-                        </span>
-                        <h3 class="text-xl md:text-2xl font-extrabold text-slate-800">総合問題（チャレンジモード）</h3>
-                    </div>
-                </div>
-                <button onclick="closeChallengeSelectModal()" class="text-slate-400 hover:text-slate-600 font-bold text-2xl px-2 cursor-pointer">✕</button>
-            </div>
-
-            <p class="text-xs md:text-sm font-bold text-slate-600 mb-5 bg-slate-50 p-3 rounded-2xl border border-slate-200 leading-relaxed">
-                「直列回路」と「並列回路」が1問ごとに交互に出題され、求める値（電圧V・電流I・抵抗R）も毎回変わる実践モードです！挑戦したい問題数を選んでスタートしよう！
+            <p class="text-xs md:text-sm font-bold text-slate-600 mb-3 bg-slate-50 p-3 rounded-2xl border border-slate-200 leading-relaxed">
+                「直列回路」と「並列回路」が1問ごとに交互に出題され、求める値（電圧V・電流I・抵抗R）も毎回変わる実践モードです！最初に名前を入力して、挑戦したい問題数を選ぼう！
             </p>
+
+            <!-- 挑戦者の名前入力エリア（必須） -->
+            <div id="challenger-name-box" class="mb-4 bg-amber-50/90 border-2 border-amber-300 rounded-2xl p-3.5 transition-all">
+                <label for="challenger-name-input" class="block text-xs md:text-sm font-extrabold text-slate-800 mb-1.5 flex items-center justify-between">
+                    <span class="flex items-center gap-1.5">
+                        <span class="bg-rose-500 text-white text-[10px] px-2 py-0.5 rounded-full">必須</span>
+                        <span>✍️ 挑戦する人の名前（クラス・番号・氏名など）を入力してください</span>
+                    </span>
+                </label>
+                <input type="text" id="challenger-name-input" placeholder="例：2年1組 15番 山田 太郎" maxlength="30"
+                       oninput="clearNameError()"
+                       style="user-select: text; -webkit-user-select: text;"
+                       class="w-full bg-white border-2 border-slate-300 focus:border-indigo-600 focus:outline-none rounded-xl px-3.5 py-2.5 text-base md:text-lg font-extrabold text-slate-900 placeholder:text-slate-300 placeholder:font-bold shadow-inner select-text" />
+                <p id="challenger-name-error" class="hidden text-xs font-extrabold text-rose-600 mt-1.5 flex items-center gap-1">
+                    <span>⚠️</span><span>名前を入力してからコースを選んでスタートしてください！</span>
+                </p>
+            </div>
 
             <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 mb-5">
                 <!-- 6問コース -->
@@ -809,6 +817,22 @@
 
             <!-- 認定証ボックス（特に18問クリア時に豪華になる） -->
             <div id="challenge-certificate-box" class="bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 border-3 border-amber-400 rounded-2xl p-4 mb-4 shadow-inner">
+                <!-- 挑戦者名 ＆ クリア日時（なりすまし・複製防止用表示） -->
+                <div class="bg-white/95 border-2 border-amber-300 rounded-xl px-4 py-2.5 mb-3 shadow-xs flex flex-col sm:flex-row items-center justify-between gap-2 text-left">
+                    <div>
+                        <div class="text-[10px] font-extrabold text-slate-400">CHALLENGER（挑戦者氏名）</div>
+                        <div id="challenge-certificate-name" class="text-lg md:text-2xl font-extrabold text-slate-900 tracking-wide break-all">
+                            山田 太郎 さん
+                        </div>
+                    </div>
+                    <div class="sm:text-right border-t sm:border-t-0 border-slate-100 pt-1.5 sm:pt-0 w-full sm:w-auto">
+                        <div class="text-[10px] font-extrabold text-slate-400">CLEAR DATE & TIME（達成日時）</div>
+                        <div id="challenge-certificate-datetime" class="text-xs md:text-sm font-extrabold text-indigo-700 bg-indigo-50 px-2.5 py-1 rounded-lg border border-indigo-200 inline-block mt-0.5">
+                            2025/01/01 12:00:00
+                        </div>
+                    </div>
+                </div>
+
                 <div id="challenge-certificate-rank" class="text-base md:text-xl font-extrabold text-amber-900 mb-1">
                     👑 認定称号：回路計算グランドマスター 👑
                 </div>
@@ -3600,6 +3624,8 @@
         let challengeTotal = 6;          // 6, 12, 18
         let challengeIndex = 0;          // 現在のチャレンジ問題インデックス
         let challengeClearedFlags = [];  // 各問題のクリアフラグ
+        let challengerName = "";         // 挑戦者の名前
+        let challengeClearTimeStr = "";  // 達成日時の文字列
 
         let combineSlots = [null, null];     // 合成スロット
         let isCombinedSolved = false;        // 組み合わせ計算が完了したか
@@ -3806,8 +3832,31 @@
         // ==========================================
         function openChallengeSelectModal() {
             const modal = document.getElementById("challenge-select-modal");
+            const input = document.getElementById("challenger-name-input");
+            if (input && challengerName) {
+                input.value = challengerName;
+            }
+            clearNameError();
             modal.classList.remove("hidden");
             modal.classList.add("flex");
+            setTimeout(() => {
+                if (input && !input.value.trim()) input.focus();
+            }, 100);
+        }
+
+        function clearNameError() {
+            const errEl = document.getElementById("challenger-name-error");
+            const boxEl = document.getElementById("challenger-name-box");
+            const inputEl = document.getElementById("challenger-name-input");
+            if (errEl) errEl.classList.add("hidden");
+            if (boxEl) {
+                boxEl.classList.remove("border-rose-500", "bg-rose-50");
+                boxEl.classList.add("border-amber-300", "bg-amber-50/90");
+            }
+            if (inputEl) {
+                inputEl.classList.remove("border-rose-500");
+                inputEl.classList.add("border-slate-300");
+            }
         }
 
         function closeChallengeSelectModal() {
@@ -3892,6 +3941,28 @@
         }
 
         function startChallengeMode(count) {
+            const inputEl = document.getElementById("challenger-name-input");
+            const nameVal = inputEl ? inputEl.value.trim() : challengerName;
+
+            if (!nameVal) {
+                const errEl = document.getElementById("challenger-name-error");
+                const boxEl = document.getElementById("challenger-name-box");
+                if (errEl) errEl.classList.remove("hidden");
+                if (boxEl) {
+                    boxEl.classList.remove("border-amber-300", "bg-amber-50/90");
+                    boxEl.classList.add("border-rose-500", "bg-rose-50");
+                }
+                if (inputEl) {
+                    inputEl.classList.remove("border-slate-300");
+                    inputEl.classList.add("border-rose-500");
+                    inputEl.focus();
+                }
+                return;
+            }
+
+            challengerName = nameVal;
+            challengeClearTimeStr = "";
+
             closeChallengeSelectModal();
             closeChallengeClearModal();
             closeLevelClearModal();
@@ -3998,7 +4069,7 @@
                 document.getElementById("example-btn").className = "px-2.5 py-1 rounded-lg font-extrabold text-xs border-2 border-amber-300 bg-amber-50 text-amber-800 hover:bg-amber-100 transition shrink-0";
                 const cLabel = currentCircuit === "parallel" ? "並列回路" : "直列回路";
                 const catName = currentCategory === "I" ? "電流(I)" : currentCategory === "R" ? "抵抗(R)" : "電圧(V)";
-                document.getElementById("level-badge").textContent = `🔥総合チャレンジ（第${challengeIndex + 1}問 / 全${challengeTotal}問）｜${cLabel}・${catName}`;
+                document.getElementById("level-badge").textContent = `🔥総合チャレンジ（${challengerName} さん｜第${challengeIndex + 1}問 / 全${challengeTotal}問）｜${cLabel}・${catName}`;
                 document.getElementById("question-text").innerHTML = q.text;
 
                 const clearedCount = challengeClearedFlags.filter(Boolean).length;
@@ -5668,4 +5739,189 @@
             modal.classList.add("hidden");
             modal.classList.remove("flex");
         }
-// ... existing code ... -->
+
+        function replayCurrentLevel() {
+            const key = `${currentCircuit}-${currentCategory}-${currentPattern}`;
+            solvedStatus[key] = [false, false, false, false, false];
+            closeLevelClearModal();
+            currentIndex = 0;
+            loadQuestion();
+        }
+
+        // ==========================================
+        // 総合問題（チャレンジモード）クリア時の特別演出モーダル
+        // ==========================================
+        function formatCurrentDateTime() {
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, "0");
+            const dd = String(now.getDate()).padStart(2, "0");
+            const hh = String(now.getHours()).padStart(2, "0");
+            const min = String(now.getMinutes()).padStart(2, "0");
+            const sec = String(now.getSeconds()).padStart(2, "0");
+            return `${yyyy}/${mm}/${dd} ${hh}:${min}:${sec}`;
+        }
+
+        function showChallengeClearModal() {
+            const modal = document.getElementById("challenge-clear-modal");
+            const card = document.getElementById("challenge-clear-card");
+            const trophy = document.getElementById("challenge-clear-trophy");
+            const ribbon = document.getElementById("challenge-clear-ribbon");
+            const title = document.getElementById("challenge-clear-title");
+            const subtitle = document.getElementById("challenge-clear-subtitle");
+            const certBox = document.getElementById("challenge-certificate-box");
+            const certName = document.getElementById("challenge-certificate-name");
+            const certDateTime = document.getElementById("challenge-certificate-datetime");
+            const certRank = document.getElementById("challenge-certificate-rank");
+            const certStars = document.getElementById("challenge-certificate-stars");
+            const certComment = document.getElementById("challenge-certificate-comment");
+            const countBadge = document.getElementById("challenge-clear-count-badge");
+            const historyContainer = document.getElementById("challenge-history-badges");
+            const actionsContainer = document.getElementById("challenge-clear-actions");
+
+            if (!challengeClearTimeStr) {
+                challengeClearTimeStr = formatCurrentDateTime();
+            }
+            if (certName) {
+                certName.textContent = `${challengerName} さん`;
+            }
+            if (certDateTime) {
+                certDateTime.textContent = `🕒 ${challengeClearTimeStr}`;
+            }
+
+            countBadge.textContent = `全${challengeTotal}問 パーフェクト正解！`;
+
+            // コース規模に応じた特別演出の分岐
+            if (challengeTotal === 18) {
+                card.className = "bg-gradient-to-b from-amber-100 via-yellow-50 to-white rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-2xl border-4 border-amber-500 text-center animate-pop-in relative z-10 max-h-[94vh] overflow-y-auto grand-master-glow";
+                trophy.textContent = "👑";
+                ribbon.textContent = "🌟 GRAND MASTER COMPLETE!! 全18種類制覇 🌟";
+                title.innerHTML = `<span class="bg-gradient-to-r from-rose-600 via-amber-600 to-indigo-600 bg-clip-text text-transparent">総合問題 全18問 完全制覇！！</span>`;
+                subtitle.innerHTML = "直列回路・並列回路の全18種類の問題すべてを、交互出題でノーミス突破！<br>君は文句なしの<strong>「回路計算グランドマスター」</strong>だ！！🎉";
+                certBox.className = "bg-gradient-to-r from-amber-100 via-yellow-100 to-amber-100 border-4 border-amber-500 rounded-2xl p-4 mb-4 shadow-md";
+                certRank.innerHTML = "👑 最高称号：伝説の回路グランドマスター 👑";
+                certComment.textContent = "すべての直列・並列回路（電圧・電流・抵抗の全18パターン）を完全に極めた証です！自信を持ってテストに挑もう！";
+            } else if (challengeTotal === 12) {
+                card.className = "bg-gradient-to-b from-amber-50 via-white to-white rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-2xl border-4 border-amber-400 text-center animate-pop-in relative z-10 max-h-[94vh] overflow-y-auto";
+                trophy.textContent = "🏆";
+                ribbon.textContent = "🔥 12 QUESTIONS CHALLENGE CLEAR!! 🔥";
+                title.textContent = "総合問題 12問チャレンジ クリア！！";
+                subtitle.innerHTML = "直列と並列が交互に出る12問を見事に解ききったね！応用力もバッチリ身についているよ！🎉";
+                certBox.className = "bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 border-3 border-amber-400 rounded-2xl p-4 mb-4 shadow-inner";
+                certRank.innerHTML = "💎 認定称号：回路計算エキスパート 💎";
+                certComment.textContent = "12問連続のシャッフル問題を突破した実力者！次は最高峰の「18問完全制覇」にも挑戦してみよう！";
+            } else {
+                card.className = "bg-gradient-to-b from-sky-50 via-white to-white rounded-3xl max-w-2xl w-full p-6 md:p-8 shadow-2xl border-4 border-sky-400 text-center animate-pop-in relative z-10 max-h-[94vh] overflow-y-auto";
+                trophy.textContent = "🏅";
+                ribbon.textContent = "⚡ 6 QUESTIONS CHALLENGE CLEAR!! ⚡";
+                title.textContent = "総合問題 6問チャレンジ クリア！！";
+                subtitle.innerHTML = "直列・並列の電圧・電流・抵抗の基本6問をスラスラ解けたね！ナイスファイト！🎉";
+                certBox.className = "bg-gradient-to-r from-sky-50 via-indigo-50 to-sky-50 border-3 border-sky-300 rounded-2xl p-4 mb-4 shadow-inner";
+                certRank.innerHTML = "⚡ 認定称号：回路チャレンジャー ⚡";
+                certComment.textContent = "交互出題の6問コースを見事突破！さらに問題数が多い12問・18問コースにも挑戦してみよう！";
+            }
+
+            // 星の描画
+            let starsHTML = "";
+            for (let i = 0; i < challengeTotal; i++) {
+                starsHTML += `<span>${challengeTotal === 18 ? '🌟' : '⭐'}</span>`;
+            }
+            certStars.innerHTML = starsHTML;
+
+            // クリアした出題順の軌跡バッジ一覧を生成
+            const patMarks = { 1: "①", 2: "②", 3: "③" };
+            const catNames = { V: "電圧V", I: "電流I", R: "抵抗R" };
+            const catBadgeStyles = {
+                V: "bg-rose-100 text-rose-800 border-rose-300",
+                I: "bg-blue-100 text-blue-800 border-blue-300",
+                R: "bg-emerald-100 text-emerald-800 border-emerald-300"
+            };
+
+            historyContainer.innerHTML = challengeQuestions.map((item, idx) => {
+                const cLabel = item.circuit === "parallel" ? "並列" : "直列";
+                const cBadge = item.circuit === "parallel"
+                    ? "bg-purple-600 text-white"
+                    : "bg-indigo-600 text-white";
+                return `
+                    <div class="flex items-center justify-between px-2.5 py-1.5 rounded-xl border ${catBadgeStyles[item.category]} font-extrabold shadow-2xs">
+                        <div class="flex items-center gap-1">
+                            <span class="text-[10px] text-slate-500">問${idx + 1}</span>
+                            <span class="px-1.5 py-0.5 rounded text-[10px] ${cBadge}">${cLabel}</span>
+                            <span>${catNames[item.category]}${patMarks[item.pattern]}</span>
+                        </div>
+                        <span class="text-rose-500">⭕</span>
+                    </div>
+                `;
+            }).join("");
+
+            // アクションボタン生成
+            let nextChallengeBtn = "";
+            if (challengeTotal === 6) {
+                nextChallengeBtn = `
+                    <button onclick="startChallengeMode(12)" class="flex-1 bg-gradient-to-r from-amber-500 to-orange-500 hover:from-amber-600 hover:to-orange-600 text-white font-extrabold text-base py-3 px-5 rounded-2xl shadow-lg active:translate-y-0.5 transition cursor-pointer">
+                        🔥 次は「12問チャレンジ」に挑む！ ▶
+                    </button>
+                `;
+            } else if (challengeTotal === 12) {
+                nextChallengeBtn = `
+                    <button onclick="startChallengeMode(18)" class="flex-1 bg-gradient-to-r from-rose-600 to-amber-500 hover:from-rose-700 hover:to-amber-600 text-white font-extrabold text-base py-3 px-5 rounded-2xl shadow-lg active:translate-y-0.5 transition cursor-pointer">
+                        👑 最高峰「全18問 完全制覇」に挑む！ ▶
+                    </button>
+                `;
+            } else {
+                nextChallengeBtn = `
+                    <button onclick="startChallengeMode(18)" class="flex-1 bg-gradient-to-r from-amber-500 via-orange-500 to-rose-500 hover:from-amber-600 hover:to-rose-600 text-white font-extrabold text-base py-3 px-5 rounded-2xl shadow-lg active:translate-y-0.5 transition cursor-pointer">
+                        👑 もう一度「全18問シャッフル」に挑む！
+                    </button>
+                `;
+            }
+
+            actionsContainer.innerHTML = `
+                <button onclick="exitChallengeMode()" class="px-4 py-3 rounded-2xl font-extrabold text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 border-2 border-slate-300 transition cursor-pointer">
+                    🏠 通常コース選択に戻る
+                </button>
+                <button onclick="closeChallengeClearModal(); openChallengeSelectModal();" class="px-4 py-3 rounded-2xl font-extrabold text-sm bg-amber-100 hover:bg-amber-200 text-amber-900 border-2 border-amber-300 transition cursor-pointer">
+                    🎯 問題数を変えて挑戦
+                </button>
+                ${nextChallengeBtn}
+            `;
+
+            modal.classList.remove("hidden");
+            modal.classList.add("flex");
+            launchConfetti("challenge-confetti-container", challengeTotal === 18 ? 110 : 65);
+        }
+
+        function closeChallengeClearModal() {
+            const modal = document.getElementById("challenge-clear-modal");
+            if (!modal) return;
+            modal.classList.add("hidden");
+            modal.classList.remove("flex");
+        }
+
+        function exitChallengeMode() {
+            closeChallengeClearModal();
+            isChallengeMode = false;
+            currentIndex = 0;
+            loadQuestion();
+        }
+
+        // 紙吹雪エフェクト
+        function launchConfetti(containerId = "confetti-container", pieceCount = 55) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+            container.innerHTML = "";
+            const colors = ["#f43f5e", "#3b82f6", "#10b981", "#f59e0b", "#a855f7", "#ec4899", "#eab308"];
+
+            for (let i = 0; i < pieceCount; i++) {
+                const piece = document.createElement("div");
+                piece.className = "confetti-piece";
+                piece.style.left = `${Math.random() * 100}%`;
+                piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                piece.style.animationDuration = `${2.0 + Math.random() * 2.5}s`;
+                piece.style.animationDelay = `${Math.random() * 0.9}s`;
+                container.appendChild(piece);
+            }
+        }
+    </script>
+</body>
+</html>
